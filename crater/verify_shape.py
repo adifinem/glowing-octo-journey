@@ -65,4 +65,47 @@ for s in sols:                                        # all real
     assert all(abs(sp.im(sp.N(v, 40))) < sp.Float(10)**-30 for v in s.values())
 print("5. S-wall fiber: 3 real preimages, two sharing x = 3/4    OK")
 
-print("DONE — fiber structure theorem verified.")
+# -- 6. shape position ON the S=0 stratum (y separating) ----------------------
+Bv, Cv = sp.symbols('Bv Cv')
+As = (9*Bv*Cv - 8)/(27*Cv**2)
+eqs_s = [sp.expand(27*Cv**2*(F[0] - As)), sp.expand(F[1] - Bv),
+         sp.expand(F[2] - Cv)]
+dom_s = sp.QQ.frac_field(Bv, Cv)
+gb_s = sp.groebner(eqs_s, x, z, y, order='lex', domain=dom_s)
+h1, h2, h3 = gb_s.exprs
+assert sp.Poly(h1, x, z, y).degree_list() == (1, 0, 2)
+assert sp.Poly(h2, x, z, y).degree_list() == (0, 1, 2)
+u = sp.Poly(sp.expand(sp.numer(sp.together(h3))), y)
+assert u.degree() == 3
+assert sp.expand(sp.factor(u.LC()) - 54*Cv**3) == 0        # never 0 for C != 0
+r_, s_ = sp.together(x - h1), sp.together(z - h2)
+assert sp.expand(sp.denom(sp.factor(r_)) - (3*Bv*Cv - 4)**2*(9*Bv*Cv - 8)) == 0
+assert sp.expand(sp.denom(sp.factor(s_)) - 54*Cv**2*(9*Bv*Cv - 8)) == 0
+num_u = sp.expand(sp.numer(sp.together(h3)))
+for e in eqs_s:
+    n = sp.expand(sp.numer(sp.together(e.subs({x: r_, z: s_},
+                                              simultaneous=True))))
+    assert sp.rem(sp.Poly(n, y, domain=dom_s),
+                  sp.Poly(num_u, y, domain=dom_s)).is_zero
+print("6. S=0 stratum: y-shape position, lead coeff 54C^3        OK")
+
+# -- 7. the leftover curve {A=0, BC=8/9}: explicit rational preimages ----------
+Ct = sp.Symbol('Ct')
+target = [0, sp.Rational(8, 9)/Ct, Ct]
+pre = [(-9*Ct/2, sp.Rational(8, 9)/Ct, sp.Rational(512, 729)/Ct**2),
+       (9*Ct/4, -sp.Rational(4, 9)/Ct, sp.Rational(656, 729)/Ct**2),
+       (9*Ct/4, sp.Rational(8, 9)/Ct, -sp.Rational(640, 729)/Ct**2)]
+for pt in pre:
+    img = [sp.simplify(f.subs(dict(zip((x, y, z), pt)))) for f in F]
+    assert [sp.simplify(i - t) for i, t in zip(img, target)] == [0, 0, 0]
+assert len(set(pre)) == 3
+print("7. leftover curve A=0, BC=8/9: 3 rational preimages       OK")
+
+# -- 8. the C=0 plane: explicit preimage ---------------------------------------
+img0 = [sp.expand(f.subs({x: 0, y: B, z: A - 4*B**2})) for f in F]
+assert img0 == [A, B, 0]
+print("8. C=0 plane: explicit preimage (0, B, A-4B^2)            OK")
+
+# Together with checks 1-5 this proves: F(C^3) is EXACTLY the complement of
+# the floor curve (B^2/12, B, 4/(3B)), and likewise over R.
+print("DONE — fiber structure + surjectivity theorem verified.")

@@ -36,6 +36,14 @@ S = 27AC² − 9BC + 8; floor curve = (B²/12, B, 4/(3B)); H = JF(0)⁻¹F − i
 - **S-wall:** on S=0 the x-projection of the fiber ramifies, the map does
   not: target (−8/27,0,1) has 3 real preimages, two sharing x = 3/4
   (`crater/verify_shape.py` #5).
+- **Surjectivity theorem:** F(ℂ³) and F(ℝ³) are *exactly* the complements
+  of the floor curve. Five-stratum proof: C=0 explicit preimage; S≠0 shape
+  position in x; S=0 shape position in y over ℚ(B,C) with leading coeff
+  54C³ (never 0); floor empty; leftover curve {A=0, BC=8/9} has 3 explicit
+  rational-in-C preimages, e.g. (−9C/2, 8/(9C), 512/729C²)
+  (`crater/verify_shape.py` #6–8). Method note: when shape position fails
+  on a stratum, **re-run the Gröbner basis restricted to the stratum with a
+  different separating variable** — it worked on the first try both times.
 
 ## Dead ends, with reasons (don't retry these)
 
@@ -121,7 +129,22 @@ S = 27AC² − 9BC + 8; floor curve = (B²/12, B, 4/(3B)); H = JF(0)⁻¹F − i
 - **Zhao's equivalences:** van den Essen's survey, arXiv:1006.5801, p. 5–6
   (statements used here verbatim); Zhao's originals [Z1] (J. Algebra, 2004ish)
   for the inversion formula behind "Δᵐ(Pᵐ⁺¹) ⟺ invertibility".
-- **Plane JC** (OPENINGS #4): Moh's degree-100 bound and the
-  points-at-infinity literature (Abhyankar) constrain the escape structure;
+- **Plane JC** (OPENINGS #4): the degree bound for a planar counterexample
+  is ≥ **108** (arXiv:2204.14178, improving Moh's 100), versus degree 7 in
+  dimension 3 — something qualitative separates the dimensions. The
+  points-at-infinity literature (Abhyankar) constrains the escape structure;
   the fiber-polynomial viewpoint here (leading-coefficient degenerations,
   never-fold) should translate into Newton-polygon conditions.
+- **Monodromy (suspicion partially confirmed externally):** a MathOverflow
+  thread reports an explicit cubic model of the counterexample with **S₃
+  monodromy** — non-normal 3-sheeted cover, which is reportedly how it
+  evades the known Galois-case theorems. Matches the suspicion above; still
+  worth computing honestly for *this* map (issue #5).
+  https://mathoverflow.net/questions/513387/
+- **Primary sources for the VC/symmetric chain:** Zhao arXiv:math/0409534
+  (TAMS 359 (2007) 249–274); de Bondt–van den Essen Proc. AMS 133 (2005)
+  2201–2205; BKK arXiv:math/0512171; Kontsevich–Belov arXiv:math/0512169
+  (Weyl automorphisms). Review issue #3 contains a broad exploration
+  program (witness compilers, moduli of counterexamples, cotangent-lift
+  mechanics, normalizing-flow benchmark, epistemic-hysteresis experiment) —
+  treat it as the idea quarry.

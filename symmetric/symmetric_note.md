@@ -51,30 +51,62 @@ is what makes the (w, w̄) triangularization possible; it is the whole trick.
 
 ## The remaining opening: Zhao's Vanishing Conjecture, explicitly
 
-Zhao's Vanishing Conjecture (equivalent to JC) states: for **homogeneous**
-P with Δᵐ(Pᵐ) = 0 for all m ≥ 1, one has Δᵐ(Pᵐ⁺¹) = 0 for m ≫ 0. Two facts
-from van den Essen's survey ([arXiv:1006.5801](https://arxiv.org/abs/1006.5801),
-p. 5–6) make an explicit counterexample a finite object:
+*(This section describes a **proposed next artifact**; the dimension-6
+symmetric counterexample above is the completed result of this note.)*
 
-- Δᵐ(Pᵐ) = 0 for all m  ⟺  **Hess P is nilpotent** (a finite symbolic check);
-- Δᵐ(Pᵐ⁺¹) = 0 for m ≫ 0  ⟺  **z + ∇P is invertible**.
+Zhao's Vanishing Conjecture states: for **homogeneous** P with Δᵐ(Pᵐ) = 0
+for all m ≥ 1, one has Δᵐ(Pᵐ⁺¹) = 0 for m ≫ 0. Within Zhao's
+homogeneous/Hessian-nilpotent framework [Z07] (see also the survey [vdE10],
+p. 5–6, whose formulations we use):
 
-Our P above satisfies the second failure (z + ∇P non-invertible) but **not**
-the first hypothesis: Hess P is *not* nilpotent (check 6 — equivalently JH is
-not nilpotent, char poly ≠ λ³), and P is inhomogeneous. The missing step is
-the classical **Bass–Connell–Wright cubic-homogeneous reduction**: push F
-through it to a cubic homogeneous Keller counterexample x + H′ (JH′ nilpotent
-by homogeneity) in some dimension N, then apply the same
-½⟨x − iy, H′(x + iy)⟩ construction to get a **homogeneous quartic,
-Hessian-nilpotent P′ in 2N variables** with z + ∇P′ non-invertible — an
-explicit counterexample to the Vanishing Conjecture, with every certificate
-finite: nilpotency of Hess P′, the lifted double points, and explicit nonzero
-values of Δᵐ(P′ᵐ⁺¹).
+- for homogeneous P, Δᵐ(Pᵐ) = 0 for all m  ⟺  **Hess P is nilpotent**
+  (a finite symbolic check) [Z07];
+- for such P, Δᵐ(Pᵐ⁺¹) = 0 for m ≫ 0  ⟺  **the associated gradient map is
+  invertible** [Z07].
 
-The BCW step is explicit but bookkeeping-heavy (each high-degree monomial is
-split by adjoining shear variables; all steps are compositions with elementary
-automorphisms, so non-injectivity and the Keller property transport
-automatically and can be re-asserted by machine at every stage). It is the
-natural next artifact for this repository. From the quartic P′, explicit
-counterexample data for the Gaussian-moments and Mathieu-style integral
-formulations should follow along the routes described in the same survey.
+(Sign convention: much of the literature writes the gradient map as
+z − ∇P; this note uses z + ∇P throughout. The two are exchanged by
+P ↦ −P, which affects neither nilpotency nor invertibility.)
+
+Our P above exhibits the second failure (z + ∇P non-invertible) but **not**
+the first hypothesis: Hess P is *not* nilpotent (check 6 — equivalently JH
+is not nilpotent, char poly ≠ λ³), and P is inhomogeneous. The missing step
+is the classical **Bass–Connell–Wright cubic-homogeneous reduction** [BCW82]:
+push F through it to a cubic homogeneous Keller counterexample x + H′ (JH′
+nilpotent by homogeneity) in some dimension N, then apply the same
+½⟨x − iy, H′(x + iy)⟩ construction — the reduction to the symmetric/gradient
+case being due to de Bondt–van den Essen [BE05] — to get a **homogeneous
+quartic, Hessian-nilpotent P′ in 2N variables** with z + ∇P′ non-invertible.
+
+The finite certificate for the resulting Vanishing Conjecture counterexample
+is: **Hessian nilpotency of P′** (char poly = λ^{2N}) **plus an explicit
+collision certifying non-invertibility of z + ∇P′**; the equivalence [Z07]
+then yields failure of eventual vanishing, i.e. Δᵐ(P′ᵐ⁺¹) ≠ 0 for
+infinitely many m. Individually computed nonzero values of Δᵐ(P′ᵐ⁺¹) are
+illustrations, not the proof — a finite list of failures cannot by itself
+refute *eventual* vanishing.
+
+On the BCW step: the classical reduction is constructive in principle and
+preserves the invertibility question under stabilization and polynomial
+coordinate changes, but this repository has **not yet** produced the actual
+reduction sequence, added variables, or transported double points. An
+explicit implementation should record each stable-equivalence transformation
+so that the Keller property, non-injectivity, and the lifted collision can
+be re-checked by machine at every stage. That is the natural next artifact
+(see OPENINGS.md and issue #4). From the quartic P′, explicit counterexample
+data for the Gaussian-moments and Mathieu-style integral formulations should
+follow along the routes described in [vdE10].
+
+## References
+
+- [BCW82] H. Bass, E. Connell, D. Wright, *The Jacobian conjecture:
+  reduction of degree and formal expansion of the inverse*, Bull. Amer.
+  Math. Soc. 7 (1982), 287–330.
+- [BE05] M. de Bondt, A. van den Essen, *A reduction of the Jacobian
+  conjecture to the symmetric case*, Proc. Amer. Math. Soc. 133 (2005),
+  2201–2205.
+- [vdE10] A. van den Essen, *The amazing image conjecture*,
+  [arXiv:1006.5801](https://arxiv.org/abs/1006.5801) (2010).
+- [Z07] W. Zhao, *Hessian nilpotent polynomials and the Jacobian
+  conjecture*, Trans. Amer. Math. Soc. 359 (2007), 249–274.
+  [arXiv:math/0409534](https://arxiv.org/abs/math/0409534).

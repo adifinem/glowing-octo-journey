@@ -27,8 +27,12 @@ def Lfun(A, B, C):
     return 27*A**2*C**2 - 18*A*B*C + 16*A + B**3*C - B**2
 
 def max_abs_root(A, B, C):
-    """Max |x| over roots of L x^3 + (4-3BC) x - 2C, batched companion eigvals."""
-    L = Lfun(A, B, C)
+    """Max |x| over roots of L x^3 + (4-3BC) x - 2C, batched companion eigvals.
+    Grid points too close to the singular contour L = 0 are masked, not
+    divided through."""
+    Lraw = Lfun(A, B, C)
+    sing = np.abs(Lraw) < 1e-9
+    L = np.where(sing, 1.0, Lraw)
     p = (4 - 3*B*C) / L
     q = (-2*C) / L
     n = A.size
@@ -38,7 +42,9 @@ def max_abs_root(A, B, C):
     comp[:, 0, 2] = -q.ravel()
     comp[:, 1, 2] = -p.ravel()
     roots = np.linalg.eigvals(comp)
-    return np.abs(roots).max(axis=1).reshape(A.shape)
+    out = np.abs(roots).max(axis=1).reshape(A.shape)
+    out[sing] = np.nan
+    return out
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.5, 5.4))
 fig.subplots_adjust(left=0.06, right=0.98, bottom=0.12, top=0.82, wspace=0.28)
@@ -47,7 +53,7 @@ fig.subplots_adjust(left=0.06, right=0.98, bottom=0.12, top=0.82, wspace=0.28)
 C0 = 2/3
 Ag, Bg = np.meshgrid(np.linspace(-0.6, 1.4, 700), np.linspace(-0.5, 4.0, 700))
 M = max_abs_root(Ag, Bg, C0)
-M = np.clip(M, 1e-2, 1e3)
+M = np.ma.masked_invalid(np.clip(M, 1e-2, 1e3))
 
 im = ax1.pcolormesh(Ag, Bg, M, cmap=cmap, norm=LogNorm(vmin=0.3, vmax=3e2),
                     shading="auto", rasterized=True)

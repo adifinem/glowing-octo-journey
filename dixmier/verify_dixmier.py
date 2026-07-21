@@ -1,20 +1,24 @@
 """Machine verification for: an explicit non-invertible endomorphism of the
 third Weyl algebra A_3 (refuting the Dixmier conjecture for n >= 3).
 
-Everything below is exact symbolic computation (sympy). Each section ends in
-an assert; if the script prints DONE, every claim in the note is verified.
+Checks 1, 2, 4, and 5 are exact symbolic computation (sympy); check 3
+combines an exact integer discriminant computation with 50-digit numerical
+certification of realness (the exact realness argument — conjugation fixes
+each simple real x-root's unique preimage — is in the note). Each section
+ends in an assert; if the script prints DONE, every claim is verified.
 
-  1. det J(F) = -2 identically (F is a Keller map).
+  1. det J(F) = -2 identically (F is a Keller map).           [exact]
   2. F is not injective on C^3: an explicit target with three distinct
-     preimages, each checked by exact substitution.
+     preimages, each checked by exact substitution.           [exact]
   3. F is not injective on R^3 either: an explicit real target with three
-     distinct REAL preimages (constant-Jacobian real non-injectivity).
+     distinct REAL preimages.       [exact discriminant + 50-digit bounds]
   4. G := J^{-1} is a polynomial matrix, and the operators
-     D_i := sum_a G[a,i] d_a satisfy [D_i, F_j] = delta_ij and [D_i, D_j] = 0,
-     so x_i -> F_i, d_i -> D_i defines an endomorphism phi of A_3.
-Non-surjectivity of phi then follows from 2 by the normal-ordering argument
-in the note (a preimage of x_i under phi would give a polynomial left inverse
-Q with Q(F(x)) = x, forcing F injective, contradicting 2).
+     D_i := sum_a G[a,i] d_a satisfy [D_i, F_j] = delta_ij and
+     [D_i, D_j] = 0, so x_i -> F_i, d_i -> D_i defines an endomorphism phi
+     of A_3.                                                  [exact]
+Non-surjectivity of phi follows from 2 by the normal-ordering argument in
+the note: a preimage of x_1 under phi would give x_1 = Q_1(F), refuted by
+the two displayed preimages sharing an image but differing in x_1.
 """
 import sympy as sp
 

@@ -51,7 +51,9 @@ Three structural facts, all verified symbolically:
    is fully rigorous: any preimage's x-coordinate must be a root of the fiber
    cubic (a resultant necessarily vanishes on common solutions), and on the
    floor curve the cubic is the nonzero constant −2C. Sample verified: the
-   target (1/3, 2, 2/3) has empty fiber.
+   target (1/3, 2, 2/3) has empty fiber. In fact the image omits **exactly**
+   this curve and nothing else — that stronger statement is proved by
+   stratification in `fiber_structure.md` (surjectivity theorem).
 
 In the slice C = 2/3 (see `crater_map.png`), the rim L = 0 is a cuspidal plane
 curve and the omitted point sits **exactly at its cusp** — the crater floor is

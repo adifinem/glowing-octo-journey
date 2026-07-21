@@ -49,8 +49,10 @@ preimage.
    injectivity over ℝ is total on an open region, yet invisible to any local
    test.
 
-Status of rigor: the classification is proved conditional on the fiber being
-a full 3-point fiber (true off a proper algebraic subset; the parity and
-conjugation arguments are unconditional given that count, and the count and
-realness are verified exactly at samples in all region types — six targets
-with varied signs of L, B, C in `verify_real_crater.py`).
+Status of rigor: **the conditional caveat that originally accompanied this
+note has been discharged** — `fiber_structure.md` proves the root↔preimage
+correspondence on every stratum (shape-position Gröbner bases in x off
+{S = 0} and in y on it, S = 27AC² − 9BC + 8), so the classification and the
+statement that F(ℝ³) is exactly the complement of the real floor curve are
+now unconditional. The six sampled targets in `verify_real_crater.py` remain
+as concrete region-by-region witnesses.

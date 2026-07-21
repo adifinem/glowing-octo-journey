@@ -99,10 +99,10 @@ Then Dᵢ = Σₐ G[a,i] ∂ₐ.
 
 ## References
 
-- [A26] L. Alpöge, announcement of a counterexample to the Jacobian Conjecture in dimension 3, July 19, 2026 (public post; manuscript in preparation).
-- [BKK07] A. Belov-Kanel, M. Kontsevich, *The Jacobian conjecture is stably equivalent to the Dixmier conjecture*, Mosc. Math. J. 7 (2007), 209–218.
+- [A26] L. Alpöge, announcement of a counterexample to the Jacobian Conjecture in dimension 3, public post on X (@\_\_alpoge\_\_), July 19–20, 2026 depending on timezone; manuscript in preparation. See [SBS26] for the map and early analysis.
+- [BKK07] A. Belov-Kanel, M. Kontsevich, *The Jacobian conjecture is stably equivalent to the Dixmier conjecture*, Mosc. Math. J. 7 (2007), 209–218. arXiv:math/0512171.
 - [D68] J. Dixmier, *Sur les algèbres de Weyl*, Bull. Soc. Math. France 96 (1968), 209–242.
 - [P94] S. Pinchuk, *A counterexample to the strong real Jacobian conjecture*, Math. Z. 217 (1994), 1–4.
-- [SBS26] *The new counterexample to the Jacobian conjecture*, Secret Blogging Seminar, July 20, 2026.
+- [SBS26] *The new counterexample to the Jacobian conjecture*, Secret Blogging Seminar, July 20, 2026. https://sbseminar.wordpress.com/2026/07/20/the-new-counterexample-to-the-jacobian-conjecture/
 - [T05] Y. Tsuchimoto, *Endomorphisms of Weyl algebra and p-curvatures*, Osaka J. Math. 42 (2005), 435–452.
 - [vdE00] A. van den Essen, *Polynomial Automorphisms and the Jacobian Conjecture*, Progress in Mathematics 190, Birkhäuser, 2000.

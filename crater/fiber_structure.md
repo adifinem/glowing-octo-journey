@@ -58,6 +58,39 @@ without meeting in space. This is also exactly why y cannot be a polynomial
 in x there — i.e., why S must appear in the shape-position denominators. The
 consistency is total.
 
+## The surjectivity theorem: the image is exactly the complement of the floor
+
+**Theorem.** F(ℂ³) = ℂ³ ∖ {(B²/12, B, 4/(3B)) : B ≠ 0}, exactly — and the
+same over ℝ: F(ℝ³) = ℝ³ minus the real floor curve. Proof by complete
+stratification, every stratum machine-certified (`verify_shape.py` checks
+6–8):
+
+1. **C = 0:** explicit preimage (0, B, A − 4B²) — exact, and real for real
+   targets.
+2. **C ≠ 0, S ≠ 0:** shape position in x. If L ≠ 0 there are three roots;
+   if L = 0 the linear coefficient 4−3BC cannot also vanish (that would put
+   the point on S = 0), so there is one root; all roots extend through
+   p(x), q(x) since their denominators 2S, 8S are nonzero. Real targets:
+   a cubic (or linear) equation with real coefficients has a real root, and
+   p, q have real coefficients — a real preimage.
+3. **C ≠ 0, S = 0, (3BC−4)(9BC−8) ≠ 0:** shape position *on the stratum*
+   with y separating: the Gröbner basis over ℚ(B,C) of the fiber ideal
+   restricted to {A = (9BC−8)/27C²} is {x − r(y), z − s(y), u(y)} with
+   u(y) = (3BC + 6Cy − 8)·(9C²y² + (12C − 18BC²)y + 9B²C² − 3BC − 8),
+   **leading coefficient 54C³ ≠ 0**, and denominators of r, s equal to
+   (3BC−4)²(9BC−8) and 54C²(9BC−8). Roots exist and extend; odd degree
+   gives a real root over ℝ.
+4. **C ≠ 0, S = 0, BC = 4/3:** the floor — the fiber cubic degenerates to
+   −2C ≠ 0; empty. (This is the only empty stratum.)
+5. **C ≠ 0, S = 0, 9BC = 8** (equivalently A = 0, BC = 8/9): three explicit
+   preimages, rational in C and verified by exact substitution as
+   identities: (−9C/2, 8/(9C), 512/(729C²)), (9C/4, −4/(9C), 656/(729C²)),
+   (9C/4, 8/(9C), −640/(729C²)) — real for real C. (Note two share
+   x = 9C/4: the S-wall crossing, again.)
+
+So the caveats are fully discharged: the complement of the image — over ℂ
+and over ℝ — is precisely the floor curve, nothing more.
+
 ## How S was found
 
 The six sampled targets suggested "3 real ⟺ L < 0". Testing whether that

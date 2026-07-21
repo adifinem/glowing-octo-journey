@@ -66,7 +66,10 @@ stratification, every stratum machine-certified (`verify_shape.py` checks
 6–8):
 
 1. **C = 0:** explicit preimage (0, B, A − 4B²) — exact, and real for real
-   targets.
+   targets. In fact the stratum has its own shape-position basis with
+   *constant* denominators and univariate x·((16A−B²)x²+4), so it carries
+   exactly three preimages whenever 16A−B² ≠ 0 (see `monodromy.md` and
+   `verify_monodromy.py` check 8).
 2. **C ≠ 0, S ≠ 0:** shape position in x. If L ≠ 0 there are three roots;
    if L = 0 the linear coefficient 4−3BC cannot also vanish (that would put
    the point on S = 0), so there is one root; all roots extend through

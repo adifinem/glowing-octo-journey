@@ -85,4 +85,58 @@ while grew:
 assert len(group) == 6, group
 print("5. generic-line rim loops generate S_3 (order 6)           OK")
 
-print("DONE — full S_3 monodromy verified.")
+# -- 6. field-aware irreducibility data (issue #11, lemma 1) -------------------
+# The valuation argument needs only: deg_A(L) = 2 with unit leading
+# coefficient 27C^2, while 4-3BC and 2C have A-degree 0. (Case analysis in
+# monodromy.md shows no root r(A) in C(B,C)(A) exists at any degree d.)
+pA = sp.Poly(L, A)
+assert pA.degree() == 2 and pA.LC() == 27*C**2
+assert sp.Poly(4 - 3*B*C, A).degree() == 0 and sp.Poly(2*C, A).degree() == 0
+print("6. valuation-lemma data: deg_A profile (2,0,0), lead 27C^2 OK")
+
+# -- 7. disc_A(L) = -4(3BC-4)^3 and L primitive => -L nonsquare over C(A,B,C) --
+a2, a1, a0 = pA.all_coeffs()
+assert sp.expand(a1**2 - 4*a2*a0 + 4*(3*B*C - 4)**3) == 0
+assert sp.gcd(sp.gcd(a2, a1), a0) == 1          # primitive in A over C[B,C]
+# 3BC-4 is linear in B, hence irreducible over C(C)[B]; odd exponent 3 makes
+# disc_A(L) a nonsquare, so L is irreducible over C(B,C)[A], and by Gauss
+# irreducible in C[A,B,C]; hence -L is a nonsquare in C(A,B,C).
+print("7. disc_A(L) = -4(3BC-4)^3; L primitive; -L nonsquare      OK")
+
+# -- 8. the C=0 stratum is internally a 3-cover where L != 0 -------------------
+domAB = sp.QQ.frac_field(A, B)
+yv, zv = sp.symbols('yv zv')
+Fc = [(1 + x*yv)**3 * zv + yv**2 * (1 + x*yv) * (4 + 3*x*yv),
+      yv + 3*x*(1 + x*yv)**2 * zv + 3*x*yv**2 * (4 + 3*x*yv),
+      2*x - 3*x**2*yv - x**3*zv]
+eqs0 = [sp.expand(Fc[0] - A), sp.expand(Fc[1] - B), sp.expand(Fc[2])]
+gb0 = sp.groebner(eqs0, yv, zv, x, order='lex', domain=domAB)
+h1, h2, h3 = gb0.exprs
+assert sp.Poly(h1, yv, zv, x).degree_list() == (1, 0, 2)
+assert sp.Poly(h2, yv, zv, x).degree_list() == (0, 1, 2)
+u0 = sp.factor(sp.numer(sp.together(h3)))
+assert sp.expand(u0 - x*((16*A - B**2)*x**2 + 4)) == 0 or \
+       sp.expand(u0 + x*((16*A - B**2)*x**2 + 4)) == 0
+# denominators of the reconstruction are CONSTANT: no exceptional locus
+assert sp.denom(sp.factor(sp.together(yv - h1))).is_number
+assert sp.denom(sp.factor(sp.together(zv - h2))).is_number
+numc0 = sp.expand(sp.numer(sp.together(h3)))
+# certificate: substitute the shape expressions and reduce
+p0, q0_ = sp.together(yv - h1), sp.together(zv - h2)
+for e in eqs0:
+    n = sp.expand(sp.numer(sp.together(e.subs({yv: p0, zv: q0_},
+                                              simultaneous=True))))
+    assert sp.rem(sp.Poly(n, x, domain=domAB),
+                  sp.Poly(numc0, x, domain=domAB)).is_zero
+# Sol's closed reconstruction for the x != 0 roots, verified mod Lx^2+4:
+Lc = 16*A - B**2
+ycand = B/4 - sp.Rational(3, 2)/x
+zcand = (2 - 3*x*ycand)/x**2
+for f, tgt in zip(Fc, (A, B, 0)):
+    n = sp.expand(sp.numer(sp.together(f.subs({yv: ycand, zv: zcand}) - tgt)))
+    assert sp.rem(sp.Poly(n, x, domain=domAB),
+                  sp.Poly(Lc*x**2 + 4, x, domain=domAB)).is_zero
+print("8. C=0 stratum: shape position, constant denominators,")
+print("   univariate x(Lx^2+4), Sol's reconstruction verified    OK")
+
+print("DONE — full S_3 monodromy verified, exactly over C(A,B,C).")

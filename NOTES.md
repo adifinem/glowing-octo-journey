@@ -92,6 +92,23 @@ S = 27AC² − 9BC + 8; floor curve = (B²/12, B, 4/(3B)); H = JF(0)⁻¹F − i
   ℚ(A,B,C) gives the clean minimal polynomial. Prefer GB for the final
   statement, resultants for discovery.
 
+## From the certificate-alignment pass (issue #11, Sol's lemmas)
+
+- **[PROVED] Discriminant tower:** disc_x(fiber cubic) = (2S)²·(−L) and
+  **disc_A(L) = −4·(3BC−4)³** — the cubic's leading coefficient and linear
+  coefficient are each other's discriminant ingredients. Sol's valuation
+  lemma (no rational-function root, by the A = ∞ valuation profile
+  (−2−3d, −d, 0)) and the Gauss-lemma chain make both irreducibility claims
+  exact over ℂ(A,B,C), not just ℚ. `crater/verify_monodromy.py` 6–7.
+- **[CERTIFIED] C = 0 stratum shape position with CONSTANT denominators**
+  (16 and 32 — the only stratum with no exceptional locus); univariate
+  x·((16A−B²)x²+4); Sol's closed reconstruction y = B/4 − 3/(2x),
+  z = (2−3xy)/x² verified by reduction. Check 8.
+- **[PROVED] π₁ corollary:** π₁(ℂ³∖{L=0}) is nonabelian (explicit S₃
+  quotient via the covering) — the rim quartic is Zariski-special.
+- Process note: Sol filed the issue *with candidate proofs*; both were
+  correct as stated. Review-with-proofs is the right ticket format.
+
 ## From the Sol merge (2026-07-21, `local_to_global/`)
 
 - **[CERTIFIED] All-rational collision fiber** (Sol's find, the simplest

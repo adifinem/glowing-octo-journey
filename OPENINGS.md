@@ -41,14 +41,16 @@ certified at the end). Expected size: a few dozen variables; the final
 certificates are (a) char poly of JH′ = λᴺ, (b) two explicit points, same
 image, (c) sample values Δᵐ(P′ᵐ⁺¹) ≠ 0.
 
-## 2. Sharpen the real-crater classification
+## 2. Sharpen the real-crater classification — **mostly resolved**
 
-`crater/real_crater.md` is conditional on full 3-point fibers off a proper
-subvariety. Make that unconditional: show every x-root of the fiber cubic
-with L ≠ 0 extends to exactly one preimage (control the elimination's
-extraneous locus), turning the disc-sign classification and the
-"F(ℝ³) = ℝ³ minus the real floor curve" statement into theorems with no
-genericity caveat.
+Resolved by `crater/fiber_structure.md`: disc = −4LS² with S = 27AC²−9BC+8,
+shape-position Gröbner basis with denominators 2S and 8S, so off the
+explicit surfaces {S=0} and {C=0} the root↔preimage correspondence is a
+bijection and the real count is decided by the sign of L. **Remaining
+sliver:** the unconditional statement *on* the strata S=0 (sheet-crossing
+wall — sampled, x-projection ramifies, count stays 3 off the floor) and
+C=0 (the x=0 branch), plus the real/complex monodromy of the 3-sheeted
+cover around {L=0} and {S=0} (see NOTES.md, suspicions).
 
 ## 3. The index of the quantum self-embedding
 

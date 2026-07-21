@@ -57,9 +57,9 @@ is a well-defined algebra endomorphism (universal property of the presentation o
 
 x₁ = φ(P)(1) = Σ_α c₍α,0₎ Fᵅ = Q₁(F₁, F₂, F₃)
 
-for the polynomial Q₁(y) = Σ_α c₍α,0₎ yᵅ. Doing the same for x₂, x₃ yields a polynomial map Q with **Q ∘ F = id**, which forces F to be injective — contradicting Fact 2.2. ∎
+for the polynomial Q₁(y) = Σ_α c₍α,0₎ yᵅ. Already this single identity is impossible: the two preimages displayed in Fact 2.2 have equal F-image but **different first coordinates**, while x₁ = Q₁(F) would force them equal. (Treating all three coordinates the same way would give a full polynomial left inverse Q ∘ F = id, forcing injectivity — the same contradiction with more machinery.) ∎
 
-Note the argument is entirely elementary: no Ax–Grothendieck, no filtration theory — a putative preimage of the coordinate functions under φ is *normal-ordered and evaluated at 1*, and out falls a polynomial left inverse of F.
+Note the argument is entirely elementary: no Ax–Grothendieck, no filtration theory — a putative preimage of one coordinate function under φ is *normal-ordered and evaluated at 1*, and out falls a polynomial identity that the displayed collision already refutes.
 
 **Corollary 4.2.** The image φ(A₃) is a proper subalgebra of A₃ isomorphic to A₃: the canonical commutation relations in three degrees of freedom admit a strict self-embedding. (The Kontsevich conjecture, concerning the *automorphism group* of Aₙ, is untouched by this; the failure is confined to non-surjective endomorphisms. Dimensions n = 1, 2 of the Dixmier Conjecture remain open, as does the Jacobian Conjecture in the plane.)
 

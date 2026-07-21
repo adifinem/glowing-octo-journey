@@ -63,6 +63,8 @@ Note the argument is entirely elementary: no Ax–Grothendieck, no filtration th
 
 **Corollary 4.2.** The image φ(A₃) is a proper subalgebra of A₃ isomorphic to A₃: the canonical commutation relations in three degrees of freedom admit a strict self-embedding. (The Kontsevich conjecture, concerning the *automorphism group* of Aₙ, is untouched by this; the failure is confined to non-surjective endomorphisms. Dimensions n = 1, 2 of the Dixmier Conjecture remain open, as does the Jacobian Conjecture in the plane.)
 
+*Remark (the index of the self-embedding).* The generic fiber of F has exactly three points (§5), so the field extension ℂ(x₁,x₂,x₃) ⊇ ℂ(F₁,F₂,F₃) has degree 3: the classical map underlying φ is a degree-3 covering onto its image. The self-embedding φ therefore carries a natural "index 3" — the multiplicity with which A₃ sits over its own copy φ(A₃), matching the three sheets of the crater. Making this module-theoretically precise (and deciding whether 3 is minimal among counterexample-induced endomorphisms) is left open; see OPENINGS.md in the repository root.
+
 ## 5. The real form, and the geometry of the fibers
 
 **Fact 5.1** (script check 3). The real point (3/100, 1, 1) has three distinct *real* preimages under F. Hence the restriction F: ℝ³ → ℝ³ — a polynomial local diffeomorphism scaling volume by the constant 2 — is not injective. This strengthens the real Jacobian picture: Pinchuk's counterexample [P94] has nonvanishing but *non-constant* Jacobian; here the Jacobian is constant.

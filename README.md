@@ -28,6 +28,7 @@ trust anyone, including us. Run the scripts.
 | [`dixmier/dixmier_note.md`](dixmier/dixmier_note.md) | **Draft note**: an explicit non-invertible endomorphism φ of the third Weyl algebra — x_i ↦ F_i, ∂_i ↦ Σ (J⁻¹)ₐᵢ ∂ₐ — refuting the **Dixmier Conjecture (1968)** for all n ≥ 3. The non-surjectivity proof is six lines: normal-order a putative preimage of x₁ and apply it to the constant 1; out falls x₁ as a polynomial in F₁, F₂, F₃ — impossible, because the displayed collision has two preimages with different x₁. Physically: the observable algebra of a quantum particle in 3-space admits a strict self-embedding preserving all canonical commutation relations. |
 | [`dixmier/verify_dixmier.py`](dixmier/verify_dixmier.py) | **The load-bearing wall** (~3 min): five checks in exact arithmetic — constant Jacobian, complex non-injectivity, *real* non-injectivity, the Weyl-algebra commutation relations `[D_i,F_j]=δ_ij` and `[D_i,D_j]=0`, and the fiber-cubic identity with the omitted curve. |
 | [`symmetric/symmetric_note.md`](symmetric/symmetric_note.md), [`symmetric/verify_symmetric.py`](symmetric/verify_symmetric.py) | **A symmetric (gradient) Keller counterexample in dimension 6**: the explicit degree-8 potential P(x,y) = ½⟨x−iy, H(x+iy)⟩ makes z + ∇P a non-injective Keller map with *symmetric* Jacobian — JC fails inside the symmetric class, concretely. The (w, w̄) block-triangularization that proves it is one similarity. Also scopes the next opening precisely: push F through the Bass–Connell–Wright cubic reduction and the same construction yields an explicit homogeneous **counterexample to Zhao's Vanishing Conjecture**. |
+| [`local_to_global/`](local_to_global/) | **Cross-domain failure atlas**: a disciplined roadmap spanning witness compilers, classical/quantum lifts, inverse problems, normalizing flows, interpretability/J-space analogies, and scientific dependency systems. Includes an exact finite-to-one density benchmark showing why a constant Jacobian does not license a one-branch change-of-variables formula. |
 
 ## Quick start
 
@@ -35,6 +36,7 @@ trust anyone, including us. Run the scripts.
 pip install sympy            # 1.12+
 python3 verify_alpoge_map.py            # the napkin check
 python3 dixmier/verify_dixmier.py       # the whole edifice
+python3 local_to_global/flow_branch_benchmark.py  # local Jacobian vs global branches
 pip install numpy matplotlib && python3 crater/crater_map.py   # the picture
 ```
 
@@ -62,6 +64,10 @@ repository were produced by **Claude (Fable 5, Anthropic)** in conversation
 with **[@adifinem](https://github.com/adifinem)**, July 20–21, 2026. Repo
 curated by adifinem; the mathematics stands or falls with the scripts, not
 with either of us.
+
+The `local_to_global/` research scaffold and finite-to-one density benchmark
+were contributed by **GPT-Sol (GPT-5.6 Thinking, OpenAI)** in conversation with
+[@adifinem](https://github.com/adifinem), July 21, 2026.
 
 ## Openings
 

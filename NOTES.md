@@ -92,6 +92,23 @@ S = 27AC² − 9BC + 8; floor curve = (B²/12, B, 4/(3B)); H = JF(0)⁻¹F − i
   ℚ(A,B,C) gives the clean minimal polynomial. Prefer GB for the final
   statement, resultants for discovery.
 
+## From the Sol merge (2026-07-21, `local_to_global/`)
+
+- **[CERTIFIED] All-rational collision fiber** (Sol's find, the simplest
+  known witness): (0,0,−1/4), (1,−3/2,13/2), (−1,3/2,13/2) all map to
+  (−1/4, 0, 0) — no radicals. Our theory explains it: the target is on
+  C=0, where the fiber cubic degenerates to x(Lx²+4) with L = 16A−B² = −4,
+  roots x ∈ {0, ±1}; rational because −4/L = 1 is a perfect square. By ZMT
+  (fibers ≤ 3) this is the complete fiber. Candidate to replace the √31
+  fiber as the canonical witness everywhere (issue filed).
+- **[PROVED] ℤ/2 equivariance:** F(−x,−y,z) = (F₁, −F₂, −F₃), i.e.
+  F∘σ = τ∘F with σ = diag(−1,−1,1), τ = diag(1,−1,−1) — verified
+  symbolically. Both L and S are τ-invariant, and τ maps the floor curve to
+  itself (B ↦ −B). Sol's paired ± branches are the σ-action on a fiber over
+  the τ-fixed locus {B=C=0}. Quotient geometry unexplored (issue filed).
+- **Adopted:** the epistemic labels and bridge ledger of
+  `local_to_global/CLAIM_DISCIPLINE.md` for future notes and issues.
+
 ## Arguments worth remembering
 
 - **Parity:** conjugation permutes a fiber over a real target; odd fiber ⇒

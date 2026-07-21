@@ -53,6 +53,13 @@ S = 27AC² − 9BC + 8; floor curve = (B²/12, B, 4/(3B)); H = JF(0)⁻¹F − i
   (`crater/verify_shape.py` #6–8). Method note: when shape position fails
   on a stratum, **re-run the Gröbner basis restricted to the stratum with a
   different separating variable** — it worked on the first try both times.
+- **Fiber traces through degree two:** Tr(x)=0, Tr(y)=3B/2, and Tr(z) is
+  polynomial; among quadratic coordinate monomials only **Tr(x²)** is not
+  polynomial: Tr(x²)=2(3BC−4)/L. Thus the paired sheets cancel in the
+  centroid while their second x-moment has a simple pole at the rim. The
+  trace pairing on {1,x,x²} has determinant **−4S²/L³**: the S² zero records
+  failure of x to separate distinct sheets, while the L⁻³ pole records loss
+  of finiteness at the nonproperness rim (`crater/verify_traces.py`).
 
 ## Dead ends, with reasons (don't retry these)
 

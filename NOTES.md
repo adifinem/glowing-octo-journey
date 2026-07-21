@@ -36,6 +36,15 @@ S = 27AC² − 9BC + 8; floor curve = (B²/12, B, 4/(3B)); H = JF(0)⁻¹F − i
 - **S-wall:** on S=0 the x-projection of the fiber ramifies, the map does
   not: target (−8/27,0,1) has 3 real preimages, two sharing x = 3/4
   (`crater/verify_shape.py` #5).
+- **Monodromy theorem:** the 3-cover over ℂ³∖{L=0} has **full S₃**
+  monodromy: cubic irreducible (transitive) + disc = (2S)²(−L) with L
+  irreducible (non-square ⟹ not in A₃). Local: rim = transposition of the
+  escaping pair (the ±√(1/L) flip), S-wall = trivial (covering extends
+  across it). Numerically: all three transpositions appear around the four
+  rim points of one generic line (`crater/verify_monodromy.py`). Slogan
+  found: *the discriminant factorization is the monodromy* — simple factor
+  (−L) = branching wall, square factor S² = phantom wall. Suspicion above
+  now proved; confirms MO 513387 independently for the original map.
 - **Surjectivity theorem:** F(ℂ³) and F(ℝ³) are *exactly* the complements
   of the floor curve. Five-stratum proof: C=0 explicit preimage; S≠0 shape
   position in x; S=0 shape position in y over ℚ(B,C) with leading coeff

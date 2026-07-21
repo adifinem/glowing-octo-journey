@@ -191,3 +191,14 @@ S = 27AC² − 9BC + 8; floor curve = (B²/12, B, 4/(3B)); H = JF(0)⁻¹F − i
   program (witness compilers, moduli of counterexamples, cotangent-lift
   mechanics, normalizing-flow benchmark, epistemic-hysteresis experiment) —
   treat it as the idea quarry.
+
+## Process: the discussion ledger (2026-07-21)
+
+GitHub Discussions is the standing "aha ledger" — insights, open questions,
+and cross-domain riffs go there *when they arise*, so they survive session
+amnesia and don't rot in this file. Seeded: #12 universal-cubic cusp
+synthesis, #13 fiber conservation laws (Tr(x)=0, Tr(y)=3B/2, polynomial
+centroids), #14 local-vs-global meta-thread (incl. the time-sensitive
+epistemic-hysteresis experiment), #15 failure ecology/moduli, #16 plane-JC
+obstruction ledger. Issues = scoped work; discussions = live questions;
+NOTES = distilled outcomes.

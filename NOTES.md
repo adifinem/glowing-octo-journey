@@ -121,7 +121,9 @@ S = 27AC² − 9BC + 8; floor curve = (B²/12, B, 4/(3B)); H = JF(0)⁻¹F − i
 - **[CERTIFIED] Weighted quotient:** the invariant rings are
   `C[xy,x²z]=C[r,t]` and `C[BC,AC²]=C[u,v]`; `F` descends to the explicit
   plane map in `crater/quotient_geometry.md`. On `C≠0`, the rim is literally
-  `G_m × {s²=(4−3u)³}` and the omitted floor orbit is the cusp tip.
+  `G_m × {s²=(4−3u)³}` and the omitted floor orbit is the cusp tip. The coarse
+  quotient is not globally étale: `det(JQ)=2(3r+t−2)²`, and that critical line
+  collapses to the rim point `(0,0)`; it is étale over `ell≠0`.
 - **[CERTIFIED] Quotient cubic:** with
   `ell=u³−u²−18uv+27v²+16v`, `D=u³−18uv+54v²`, and `w=r+1`, generic quotient
   fibers satisfy `ell·w³+(u²−12v)w−4v=0`; its discriminant is `−4ell·D²`,

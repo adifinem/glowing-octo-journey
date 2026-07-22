@@ -36,6 +36,18 @@ This is the affine invariant quotient, not automatically a geometric orbit
 space at unstable orbits. On `C!=0`, however, `(u,v,c=C)` is an actual
 coordinate chart with inverse `A=v/c^2`, `B=u/c`.
 
+The caveat is visible in one derivative:
+
+```text
+det(JQ) = 2(3r+t-2)^2.
+```
+
+The whole critical line `3r+t-2=0` collapses to `(u,v)=(0,0)`, a point on the
+rim. Thus the coarse quotient of the étale threefold map is **not** globally
+étale. Over the complement `ell!=0` it is étale—the critical line maps into
+`ell=0`—so its generic three-sheeted trace and monodromy data remain valid.
+This unstable-locus warning is essential when moving conclusions downstairs.
+
 ## The rim is literally a cusp downstairs
 
 Define the invariant forms

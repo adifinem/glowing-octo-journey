@@ -38,6 +38,18 @@ assert sp.expand(F[1]*F[2] - Qu.subs(source_invariants)) == 0
 assert sp.expand(F[0]*F[2]**2 - Qv.subs(source_invariants)) == 0
 print("2. quotient formulas Q(r,t)=(BC, AC^2) verified exactly       OK")
 
+# The coarse quotient does not preserve global etaleness: the unstable critical
+# line collapses to a point on the quotient rim. Away from the rim Q is etale.
+h = 3*r + t - 2
+quotient_jacobian = sp.factor(sp.det(sp.Matrix([
+    [sp.diff(Qu, r), sp.diff(Qu, t)],
+    [sp.diff(Qv, r), sp.diff(Qv, t)],
+])))
+assert quotient_jacobian == 2*h**2
+assert Qu.subs(t, 2-3*r) == 0 and Qv.subs(t, 2-3*r) == 0
+assert ell.subs({u: 0, v: 0}) == 0
+print("   det(JQ)=2(3r+t-2)^2; critical line collapses to (0,0)     OK")
+
 # 3. The rim and S-wall descend, and the rim is a cusp.
 target_chart = {A: v/C**2, B: u/C}
 assert sp.cancel((L*C**2).subs(target_chart) - ell) == 0

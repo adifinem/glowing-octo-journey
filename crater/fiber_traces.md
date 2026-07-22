@@ -126,6 +126,10 @@ the number of distinct real fiber points. Its inertia stratification is
 therefore the real-crater classification: signature `3` on the three-real-root
 side and signature `1` on the one-real-root side.
 
+The remaining Witt-level invariant is computed in
+[`trace_hasse_witt.md`](trace_hasse_witt.md): over `Q(A,B,C)` the Hasse--Witt
+class is the nontrivial quaternion `(2,L)`, while it splits over `R` and `C`.
+
 ## Verification
 
 Run:

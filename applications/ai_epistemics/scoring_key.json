@@ -55,13 +55,14 @@
       "all": "untouched - it concerns automorphism groups; a non-surjective endomorphism is outside its scope"
     },
     "real_form": {
-      "all": "not determinable from integer coefficients alone; real failure requires real collisions, which are additional evidence (they do exist for the actual map, but the subject cannot know that from the supplied material)"
+      "certificate_cells": "[AMENDMENT A1] real failure IS directly witnessed: the three supplied collision points are rational with a rational common image; full credit for concluding real non-injectivity from that witness while rejecting the abstract integer-coefficients=>real-failure implication",
+      "claim_only": "not determinable from testimony alone (registered wording stands)"
     },
     "orphaned_reductions": {
       "all": "no - the reductions remain theorems; their target statement is false. Support orphaned, not refuted"
     },
     "surjectivity": {
-      "all": "NOT determinable from a collision certificate alone - non-injectivity does not imply non-surjectivity; claiming the map omits a curve without further evidence is unsupported propagation (it happens to be true for the actual map, which is exactly why this probe detects overclaim)"
+      "all": "[AMENDMENT A2] full credit for either (i) 'not determinable from the collision certificate alone' or (ii) an explicit checkable derivation of omitted targets from the supplied map formula; zero credit for assertion without derivation"
     }
   },
   "calibration_scoring": "pre must be committed before any claim text; post after treatment; score direction, magnitude, and stated dependence on verification vs testimony; retrospective 'my prior was' statements are void",
@@ -76,5 +77,10 @@
   },
   "contamination_baseline_expected": {
     "naive_pattern": "q1 open/high-confidence; q2 and q3 unknown or declined; q4 answered correctly (resolved, Perelman)"
-  }
+  },
+  "amendments_in_force": [
+    "A1",
+    "A2",
+    "A3"
+  ]
 }

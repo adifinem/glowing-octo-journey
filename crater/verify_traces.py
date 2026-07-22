@@ -68,17 +68,33 @@ for name in polynomial_traces:
     assert denominator.total_degree() == 0
 assert sp.factor(sp.denom(traces["x^2"])) == L
 
-# The trace-pairing determinant in the power basis is the discriminant of the
+# The trace-pairing determinant in the x-power basis is the discriminant of the
 # monic fiber cubic. Its S^2 zero records failure of x to separate the sheets
 # on the S-wall; its L^-3 pole records the pair of sheets escaping at the rim.
 power_basis = (1, x, x**2)
 trace_form = sp.Matrix(3, 3, lambda i, j: fiber_trace(power_basis[i]*power_basis[j]))
 assert sp.factor(sp.det(trace_form)) == -4*S**2/L**3
 
+# Change the primitive element from x to y. The intrinsic square class remains
+# -L, but the even projection divisor migrates from S^2 to A^2 and the x-lattice
+# poles disappear. This machine-checks that only divisor parity is basis-free.
+y_power_basis = (1, p, reduce_fiber(p**2))
+y_change = sp.Matrix(
+    3, 3,
+    lambda i, j: sp.Poly(reduce_fiber(y_power_basis[j]), x, domain=K).nth(i),
+)
+y_trace_form = sp.Matrix(
+    3, 3, lambda i, j: fiber_trace(y_power_basis[i]*y_power_basis[j])
+)
+assert sp.cancel(sp.det(y_change) - 27*A*L**2/(4*S)) == 0
+assert sp.cancel(sp.det(y_trace_form) + 729*A**2*L/4) == 0
+assert sp.cancel(sp.det(y_trace_form) - sp.det(trace_form)*sp.det(y_change)**2) == 0
+
 print("Generic fiber traces through coordinate degree two:")
 for name, value in traces.items():
     print(f"  Tr({name}) = {value}")
 print("\nPolynomial through degree two except Tr(x^2):              OK")
 print("Tr(x^2) = 2(3BC-4)/L exposes the escaping second moment: OK")
-print("det trace form = -4*S^2/L^3:                            OK")
-print("DONE — fiber centroid, second moments, and trace form certified.")
+print("det trace form in x-basis = -4*S^2/L^3:                 OK")
+print("det trace form in y-basis = -729*A^2*L/4:                OK")
+print("DONE — fiber centroid, moments, and trace-form parity certified.")

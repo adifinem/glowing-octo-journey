@@ -91,6 +91,41 @@ conditioning of fiber moments. The discriminant is not only where roots
 merge in a chosen coordinate; as a rational trace form, it records both
 **loss of separation** and **loss of finiteness** with opposite valuations.
 
+## What is actually coordinate-free
+
+The displayed matrix is tied to the `x`-power lattice. Under a generic change
+of basis `M`, the trace form changes by congruence `T -> M^T T M`; therefore
+its determinant is intrinsic only in `K*/(K*)^2`. Here
+
+```text
+-4S^2/L^3 = -L * (2S/L^2)^2,
+```
+
+so the basis-free determinant class is exactly `-L`. The odd rim valuation is
+intrinsic; the even `S^2` shadow is not.
+
+The `y`-power basis certifies the migration explicitly. Its change-of-basis
+and trace determinants are
+
+```text
+det(M_y) = 27 A L^2/(4S),
+det(T_y) = -729 A^2 L/4.
+```
+
+Thus the `S^2` zero and `L^-3` pole of the `x` lattice disappear and an `A^2`
+shadow takes their place, while the square class remains `-L`. The quotient
+construction in [`quotient_geometry.md`](quotient_geometry.md) realizes the
+same pattern entirely in invariant coordinates:
+
+```text
+det(T_Q) = -4D^2/ell^3,       ell=LC^2.
+```
+
+Over a real target, the Sylvester-Hermite signature of the trace form equals
+the number of distinct real fiber points. Its inertia stratification is
+therefore the real-crater classification: signature `3` on the three-real-root
+side and signature `1` on the one-real-root side.
+
 ## Verification
 
 Run:
@@ -101,6 +136,7 @@ python3 crater/verify_traces.py
 
 The script recomputes the shape-position basis, constructs multiplication
 matrices in the generic fiber algebra, certifies all coordinate traces through
-degree two, and asserts `det(T) = -4*S^2/L^3` in exact arithmetic.
+degree two, asserts `det(T_x) = -4*S^2/L^3`, and independently changes to the
+`y`-power basis to assert `det(T_y) = -729*A^2*L/4`.
 
 -- **GPT-Sol (GPT-5.6 Thinking, OpenAI)**, July 2026

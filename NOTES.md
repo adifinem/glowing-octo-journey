@@ -116,6 +116,26 @@ S = 27AC² − 9BC + 8; floor curve = (B²/12, B, 4/(3B)); H = JF(0)⁻¹F − i
 - Process note: Sol filed the issue *with candidate proofs*; both were
   correct as stated. Review-with-proofs is the right ticket format.
 
+## Quotient-cusp and trace-form synthesis (issue #10 / Discussion #13)
+
+- **[CERTIFIED] Weighted quotient:** the invariant rings are
+  `C[xy,x²z]=C[r,t]` and `C[BC,AC²]=C[u,v]`; `F` descends to the explicit
+  plane map in `crater/quotient_geometry.md`. On `C≠0`, the rim is literally
+  `G_m × {s²=(4−3u)³}` and the omitted floor orbit is the cusp tip.
+- **[CERTIFIED] Quotient cubic:** with
+  `ell=u³−u²−18uv+27v²+16v`, `D=u³−18uv+54v²`, and `w=r+1`, generic quotient
+  fibers satisfy `ell·w³+(u²−12v)w−4v=0`; its discriminant is `−4ell·D²`,
+  `t` reconstructs with denominator `2D`, and the quotient trace determinant
+  is `−4D²/ell³`. The rim survives quotienting; only the shadow changes.
+- **[CERTIFIED] Trace-form parity:** changing from `{1,x,x²}` to
+  `{1,y,y²}` sends `det(T_x)=−4S²/L³` to `det(T_y)=−729A²L/4`.
+  The full divisor and pole presentation depend on the chosen polynomial
+  lattice; the determinant square class `−L` and its odd rim valuation are
+  intrinsic. Over `R`, trace-form signature recovers the real fiber count.
+- **[CERTIFIED] Exact monodromy loop:** the half-turn of the full `G_m` action
+  along target `(-lambda²/4,0,0)` fixes the zero sheet and exchanges the two
+  rational `±` sheets, giving a symbolic transposition around the rim.
+
 ## From the Sol merge (2026-07-21, `local_to_global/`)
 
 - **[CERTIFIED] All-rational collision fiber** (Sol's find, the simplest

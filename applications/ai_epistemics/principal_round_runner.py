@@ -84,7 +84,7 @@ def build_schedule() -> dict:
         classes[model] = {
             'provider': 'openai',
             'system_class': 'registered-default',
-            'max_tokens': 30000,
+            'max_tokens': 16384 if model == 'gpt-4o-2024-11-20' else 30000,
             'session_cost_guard_usd': {'gpt-5.6-sol': 0.75, 'gpt-4o-2024-11-20': 0.50,
                                        'gpt-5.5-2026-04-23': 1.50}[model],
             'neutral_sessions': _stage_sessions(model, ('neutral',), 'neutral', orders),
@@ -591,4 +591,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

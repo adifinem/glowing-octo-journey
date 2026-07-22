@@ -2078,7 +2078,7 @@
     "gpt-4o-2024-11-20": {
       "provider": "openai",
       "system_class": "registered-default",
-      "max_tokens": 30000,
+      "max_tokens": 16384,
       "session_cost_guard_usd": 0.5,
       "neutral_sessions": [
         {
@@ -3492,5 +3492,5 @@
     "max_neutral_nonconformance_rate": 0.1,
     "minimum_openai_credit_estimate_before_stage": 7.5
   },
-  "schedule_sha256": "44091c8a783870d3b4a6b7779dd1c0193489e0f51663e9fdccea9232114fcf2f"
+  "schedule_sha256": "3d3c456e5858a863fa45c10a97bb0757631a97578bdc6ce40809cb5efc059ceb"
 }

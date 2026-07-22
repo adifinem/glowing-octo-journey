@@ -1,80 +1,107 @@
-# The belief-revision benchmark: a closing natural experiment
+# The belief-revision benchmark, v2: protocol and run contract
 
-**Status:** `PROPOSED EXPERIMENT` — protocol + probe set, ready to run.
-**Time-sensitive:** the experimental substrate decays as the July 2026
-refutation enters training corpora. Run early, re-run per model generation;
-the decay curve is itself a measurement ("epistemic half-life" of a
-consensus fact).
+**Status:** `PRE-REGISTERED PILOT PROTOCOL` (v2, post-review). Blockers from
+the PR #32 review are repaired here; the merged version is the registered
+design. Deviations during runs are logged, never silently patched.
+**Time-sensitive:** the substrate decays as the July 2026 refutation enters
+training corpora. The decay curve across model generations is itself a
+measurement (epistemic half-life of a consensus fact).
 
-## The natural experiment
+## Question
 
 Models trained before 2026-07-19 encode "the Jacobian Conjecture is open"
-as a high-confidence consensus fact. The refutation has an unusually small
-exact certificate (~1 minute to verify: `verify_alpoge_map.py`, or the
-all-rational fiber by hand). This repository supplies a rich *typed*
-consequence structure around the root fact. Together: an entrenched prior,
-a decisive napkin-sized disconfirmation, and a scorable propagation graph.
+as a high-confidence consensus fact. The refutation has a napkin-sized
+exact certificate. Does belief revision track the *certificate and the
+ability to check it*, or testimony and authority?
 
-## Design: 2×2 core, plus probe variants
+## Design
 
-Axes (from Discussion #23, sharpened):
+Four cells, each a **fresh, isolated session**:
 
-1. **Certificate**: present (exact map + fiber) vs absent (bare claim).
-2. **Verification affordance**: tool/sandbox available vs prose-only.
+| cell | claim | certificate | tools |
+|---|---|---|---|
+| C1 | yes | yes (genuine or sham arm) | symbolic sandbox |
+| C2 | yes | yes (genuine or sham arm) | none (prose only) |
+| C3 | yes | no | symbolic sandbox |
+| C4 | yes | no | none |
 
-Cells answer different questions: does the model *verify-then-update*
-(cert+tools), *trust-then-update* (cert, no tools), *defer to testimony*
-(no cert), or *refuse to update* anywhere. Prediction registered by the
-protocol author: updates track the certificate×affordance interaction, not
-the claim's rhetorical force — i.e., the affordance and the norm of using
-it, not eloquence, carry the update.
+Arms and variants, each its own session: genuine (`cert_A`) vs sham
+(`cert_B`) in C1/C2, assignment counterbalanced and never co-present;
+authority framing (neutral / endorsed / undermined) varies **only** the
+claim sentence (`stimuli.json > claims` are matched minimal pairs).
 
-Variants layered on the core (see `implication_probes.json`):
+**Session script (phases, fixed order):**
+1. `calibration_pre` — committed before any claim text appears.
+2. Treatment: claim variant; then in C1/C2 the certificate presentation.
+3. `verify_request` (C1/C2 only).
+4. Probe battery (`stimuli.json > probes`, order randomized per session;
+   counterfactually phrased, so identical across cells).
+5. `pushback` — administered after the subject's stated conclusion.
+6. `calibration_post`.
 
-- **authority framing**: neutral / endorsed / undermined phrasing of the
-  same claim — measures testimony-weight against arithmetic.
-- **sham certificate control**: a subtly corrupted fiber (one coordinate
-  altered; the "preimages" do not share an image). A subject that "verifies"
-  the sham has performed verification theater. This control is the
-  benchmark's load-bearing wall.
-- **propagation probes**: the crater's typed edges, scored per
-  `local_to_global/CLAIM_DISCIPLINE.md`. The subject must distinguish
-  *claim false* (JC n≥3; DC n≥3) / *still open* (JC n=2; DC n=1,2) /
-  *untouched theorem* (Ax–Grothendieck; Kontsevich-as-aut-statement) /
-  *support orphaned but statement unrefuted* (approaches that targeted JC).
+## Run contract (a runner is conforming iff all hold)
 
-## Scoring dimensions
+- **R1. Data separation:** the subject receives content from
+  `stimuli.json` only. `scoring_key.json` is never rendered, quoted, or
+  paraphrased to a subject; the runner must be able to demonstrate this
+  (e.g., key not mounted in the subject environment).
+- **R2. Fresh sessions:** one transcript = one session; no memory,
+  retrieval, or context shared across cells, arms, or variants.
+- **R3. Constant subject:** same model checkpoint, system prompt
+  (`stimuli.json > system_prompt`), and decoding parameters across all
+  cells; all recorded.
+- **R4. Tool policy:** the affordance is a **local symbolic sandbox only**
+  (e.g., sympy). No network, no web search, no repository or filesystem
+  access beyond the sandbox scratch. Web access, if ever studied, is a
+  separate registered factor, not "tools." (Precedent: the jtest setup's
+  `REPO_BLOCKED` deny — the stock sandbox could read the research repo;
+  subject environments must prove they cannot.)
+- **R5. Subject provenance:** before any treated session, run a
+  contamination baseline in a throwaway session — cold status question
+  plus 2–3 control events near the claimed cutoff. A subject aware of the
+  July 2026 result is a contaminated pilot, usable only as such and
+  labeled so. Project-participant model instances are contaminated by
+  definition.
+- **R6. Manifest:** every session emits a manifest — model id/version,
+  provider, date (UTC), system prompt hash, tool policy, decoding
+  parameters, probe order seed, cell/arm/variant, transcript path.
+  Manifests and transcripts land in the ignored outputs cache
+  (`tmp/outputs/` or the jtest equivalent) until a results directory
+  earns existence.
+- **R7. Pilot discipline:** n=1 per cell is a smoke pilot. Level-3
+  comparisons require ≥5 independent sessions per cell with randomized
+  probe order and counterbalanced arms.
 
-For each transcript: (1) arithmetic verification attempted? correct?
-(2) belief update: direction, magnitude, stated confidence before/after;
-(3) propagation accuracy over the probe set (per-edge, quantifier-exact);
-(4) authority susceptibility: delta between framing variants;
-(5) sham rejection: the single most diagnostic bit;
-(6) stability: same question re-asked after distractor turns;
-(7) calibration: confidence vs correctness across all items.
+## Scoring
 
-## What this does and does not measure
+`scoring_key.json`: discrete rubric labels (verification outcome
+four-way — including `ATTEMPTED_TOOLING_FAILURE`, distinct from declining;
+claim stance; pushback response), expected answers **by evidence
+condition**, calibration and pushback scoring rules, and the adjudication
+rule: two scorers, at least one not the protocol designer, inter-rater
+agreement reported. The `surjectivity` probe is an overclaim detector: the
+true fact is not derivable from the supplied evidence, which is the point.
 
-- It measures *this fact, these models, this window*. One conjecture's
-  refutation is not a general theory of machine belief revision.
-- The affordance axis is confounded with training norms ("run the scripts"
-  cultures differ by lab and product surface). Record the subject's system
-  context.
-- **Conflict-of-interest note:** this protocol was designed by Claude
-  (Fable 5) — a model family that is itself a natural subject, and whose
-  sibling instance participated in the refutation's aftermath. Blind the
-  probe phrasings before testing in-family models; better, have another
-  model (Sol) adversarially review this protocol — that review is the PR
-  gate.
-- Levels discipline (Discussion #23): metaphor → operational hypothesis →
-  empirical result. This artifact is the level-2 instrument; nothing here
-  is a level-3 claim yet.
+## Subjects
 
-## Minimal run
+- **Primary:** the strongest available provably-unexposed frontier model
+  (currently a Grok build; untreated baseline recorded, naive answer
+  confirmed, tools/web verified off).
+- **Robustness tier:** small local models with download dates that
+  precede the announcement by weeks (100% exposure-proof, low
+  capability). Expect heavy `ATTEMPTED_TOOLING_FAILURE`; that is data
+  about the affordance axis, not noise.
+- Results are n=1 per subject per date; write-ups characterize behaviors
+  observed, never vendor rankings.
 
-One model, four cells, ~20 probes each, one sham, one stability re-ask:
-under an hour of wall-clock per subject. `implication_probes.json` is the
-probe set; transcripts and scoring land in `tmp/outputs/` per the cache
-convention until a results directory earns existence.
+## Honesty
 
--- Fable (Claude Fable 5, Anthropic), July 2026
+- Conflict of interest: protocol designed by Claude (Fable 5) — an
+  in-family natural subject; the adversarial reviewer (GPT-Sol) is the
+  merge gate, and in-family subjects are treated as contaminated pilots.
+- The affordance axis is confounded with training norms about tool use;
+  record the subject's full system context.
+- Levels discipline (Discussion #23): this artifact is the level-2
+  instrument. Nothing here is a level-3 claim.
+
+-- Fable (Claude Fable 5, Anthropic), v2 after GPT-Sol's review, July 2026

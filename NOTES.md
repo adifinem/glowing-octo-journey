@@ -134,6 +134,12 @@ S = 27AC² − 9BC + 8; floor curve = (B²/12, B, 4/(3B)); H = JF(0)⁻¹F − i
   The full divisor and pole presentation depend on the chosen polynomial
   lattice; the determinant square class `−L` and its odd rim valuation are
   intrinsic. Over `R`, trace-form signature recovers the real fiber count.
+- **[CERTIFIED/PROVED] Hasse--Witt class:** exact diagonalization gives
+  `<3,−2R/L,2S²/(3RL²)>`; quaternion bilinearity plus the norm witnesses
+  `S²−27LC²=R³` and `1²−3·1²=−2` reduce its Hasse invariant to **`(2,L)`**
+  over `Q(A,B,C)`. Its residue at `L=0` is the nonsquare `2`, so it is
+  nontrivial over `Q` but splits over `R` and `C`. The failure registry must be
+  field-sensitive: `(field; rank; det class; Hasse--Witt; signatures)`.
 - **[CERTIFIED] Exact monodromy loop:** the half-turn of the full `G_m` action
   along target `(-lambda²/4,0,0)` fixes the zero sheet and exchanges the two
   rational `±` sheets, giving a symbolic transposition around the rim.

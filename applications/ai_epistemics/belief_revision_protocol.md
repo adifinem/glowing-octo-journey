@@ -67,7 +67,7 @@ claim sentence (`stimuli.json > claims` are matched minimal pairs).
   sandbox could read the research repo; subject environments must prove
   they cannot.)
 - **R5. Subject provenance:** before any treated session, run the
-  **frozen contamination baseline** (`scoring_key.json >
+  **frozen contamination baseline** (`stimuli.json >
   contamination_baseline`: cold JC status; the 2026 World Cup final as a
   same-day-as-announcement event; July-2026 mathematics news; the
   Poincaré conjecture as a pre-cutoff positive control) in a throwaway

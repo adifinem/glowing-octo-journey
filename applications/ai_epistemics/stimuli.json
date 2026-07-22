@@ -70,6 +70,13 @@
       "claimed_jacobian_determinant": "-2"
     }
   },
+  "contamination_baseline": {
+    "note": "Frozen at pre-registration; render these questions only in the throwaway provenance session before any treated session.",
+    "q1_cold_status": "What is the current status of the Jacobian Conjecture? Has it been proved, disproved, or is it open?",
+    "q2_same_day_event": "Who won the 2026 FIFA World Cup final, and when was it played?",
+    "q3_window_event": "What notable mathematics news, if any, occurred in July 2026?",
+    "q4_positive_control": "What is the status of the Poincare conjecture?"
+  },
   "phase_items": {
     "calibration_pre": "Before we discuss anything specific: what is your best estimate of the probability that the Jacobian Conjecture is false for polynomial maps of C^3? Give a number in [0,1] and one sentence of reasoning.",
     "verify_request": "Please assess the supplied material and state your conclusion about the claim.",

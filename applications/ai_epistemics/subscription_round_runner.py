@@ -744,7 +744,7 @@ class ClaudeCodeMaxTransport:
         self.process.stdin.write(json.dumps(message, separators=(',', ':')) + '\n')
         self.process.stdin.flush()
         events, result = [], None
-        deadline = time.monotonic() + 600
+        deadline = time.monotonic() + 1800
         while time.monotonic() < deadline:
             ready, _, _ = select.select([self.process.stdout], [], [], 1)
             if not ready:
@@ -1266,18 +1266,31 @@ def run_stage(model: str, stage: str, root: Path):
     stage_root = root / model / stage; stage_root.mkdir(parents=True, exist_ok=True)
     completed = []
     for session in sessions:
-        session_root = stage_root / session['session_id']
-        target = session_root / 'manifest.json'
-        if target.is_file() and json.loads(target.read_text()).get('complete'):
-            completed.append(str(target.parent))
-            continue
-        if session_root.exists():
+        run_session, resolved = session, False
+        for supersede in range(0, 4):
+            if supersede:
+                identity = (f'{session["model"]}|{session["stage"]}|{session["cell"]}|'
+                            f'{session["arm"] or "none"}|{session["authority_variant"]}|'
+                            f'{session["replicate"]}|supersede{supersede}')
+                run_session = {**session, 'session_id': str(uuid.uuid5(NAMESPACE, identity)),
+                               'supersedes': run_session['session_id']}
+            session_root = stage_root / run_session['session_id']
+            target = session_root / 'manifest.json'
+            if target.is_file() and json.loads(target.read_text()).get('complete'):
+                completed.append(str(session_root)); resolved = True; break
+            if session_root.exists():
+                continue  # incomplete: preserved untouched per A8; try the next superseding UUID
+            run_dir = execute_session(run_session, config, transport=_transport(config['provider']),
+                                      results_root=stage_root)
+            completed.append(str(run_dir)); resolved = True
+            print(json.dumps({'completed': len(completed), 'planned': len(sessions), 'model': model,
+                              'stage': stage, 'run_dir': str(run_dir),
+                              'supersedes': run_session.get('supersedes')}), flush=True)
+            break
+        if not resolved:
             raise RuntimeError(
-                f'incomplete session is preserved at {session_root}; issue a superseding replacement UUID instead of overwriting')
-        run_dir = execute_session(session, config, transport=_transport(config['provider']), results_root=stage_root)
-        completed.append(str(run_dir))
-        print(json.dumps({'completed': len(completed), 'planned': len(sessions), 'model': model,
-                          'stage': stage, 'run_dir': str(run_dir)}), flush=True)
+                f'session {session["session_id"]} has exhausted its supersession budget (3); '
+                'inspect the preserved incomplete directories before continuing')
     return completed
 
 

@@ -266,3 +266,19 @@ init-model equality for this slug; competence gate and contamination baseline
 run under the actual harness before any subject session, per A8.
 
 -- Fable (Claude Fable 5, Anthropic — instance 2), implementation; j, design and execution authorization
+
+### A10.1 — Turn-deadline erratum and supersession implementation (2026-07-23)
+
+The first haiku round completed 4/5; the fifth session (sham, replicate 2) was
+killed not by the provider but by a **hardcoded 600-second per-turn harness
+deadline** — an artificial mid-ladder cap of exactly the kind A8's
+maximal-upfront-ceilings policy forbids. The deadline is raised to 1800s
+(harness envelope, not stimulus; A3 precedent). The incomplete session is
+preserved untouched, and A8's superseding-UUID replacement — specified in A8
+but never implemented — now exists in `run_stage`: deterministic
+`uuid5(namespace, identity + '|supersedeN')`, N ≤ 3, `supersedes` recorded in
+the replacement manifest. The stance already committed by the casualty before
+death (REJECT on sham, consistent with its completed sibling) is quarantined
+with the incomplete artifact, not scored.
+
+-- Fable (Claude Fable 5, Anthropic — instance 2), implementation

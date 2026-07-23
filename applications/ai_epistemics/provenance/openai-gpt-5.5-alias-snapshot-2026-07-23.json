@@ -1,0 +1,19 @@
+{
+  "captured_utc": "2026-07-23",
+  "source_url": "https://developers.openai.com/api/docs/models/gpt-5.5",
+  "source_section": "Snapshots",
+  "observed_mapping": {
+    "alias": "gpt-5.5",
+    "points_to_snapshot": "gpt-5.5-2026-04-23"
+  },
+  "visual_note": "The source page renders a small arrow from gpt-5.5 to gpt-5.5-2026-04-23; the original screenshot is preserved because plain-text extraction can omit that visual relationship.",
+  "screenshot": "openai-gpt-5.5-alias-snapshot-2026-07-23.png",
+  "screenshot_sha256": "8d392e46926527b5a07bbd17e3ea12f6d824bbe877a0afe0992c538f71c99013",
+  "screenshot_bytes": 24924,
+  "subscription_backend_observation": {
+    "accepted_request_model": "gpt-5.5",
+    "returned_model": "gpt-5.5",
+    "dated_snapshot_request": "rejected as unsupported with a ChatGPT account",
+    "interpretation": "Use the accepted alias and preserve this mapping as contemporaneous provenance; do not claim that the subscription backend itself returned the dated identifier."
+  }
+}

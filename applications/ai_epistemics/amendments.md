@@ -147,3 +147,59 @@ the narrow exact tool through an already-running HTTP MCP server and one with no
 tools. Raw validation artifacts are retained outside the repository.
 
 -- Independent review: Claude Haiku 4.5 (Anthropic), isolated subscription harness
+
+## A8 — Subscription-only restart and maximal upfront ceilings (2026-07-23, j-authorized)
+
+The 2026-07-22 principal schedule (SHA-256
+`3d3c456e5858a863fa45c10a97bb0757631a97578bdc6ce40809cb5efc059ceb`) is
+superseded, never edited or overwritten. The restart uses a new deterministic seed,
+namespace, schedule hash, result root, and subject UUIDs. Every old `cert_B` session
+remains excluded under A7. Completed old genuine/claim-only direct-API sessions and
+four incomplete GPT-5.5 directories remain historical artifacts, but none is pooled
+with the subscription restart.
+
+The restarted confirmatory classes are subscription-only:
+
+1. `gpt-5.6-sol` via the minimal authenticated ChatGPT Responses transport, at the
+   live catalog's `max` reasoning effort: 30 neutral sessions, followed by the
+   previously registered 60-session authority extension only if its neutral gate
+   passes.
+2. `gpt-5.5` via the same transport, at its live catalog ceiling of `xhigh`: 30
+   neutral sessions. OpenAI's model page visually maps this alias to the sole listed
+   snapshot `gpt-5.5-2026-04-23`; the original screenshot, extracted mapping, source
+   URL, and checksum are frozen under `applications/ai_epistemics/provenance/`.
+   Because the ChatGPT backend accepts and returns only `gpt-5.5`, this class is
+   reported as the contemporaneously documented alias and is not pooled with the
+   prior dated direct-API class.
+3. `claude-fable-5` and `claude-sonnet-5` retain their registered one-session
+   transfer-pilot role, but run at `max` rather than the superseded low-effort/8,192
+   class. They use isolated Claude Code Max OAuth stream-JSON sessions, never the
+   Anthropic API.
+
+`gpt-4o-2024-11-20` is dropped from the restart. Direct OpenAI and Anthropic API
+transports are forbidden by the frozen dispatcher; there is no API or model fallback.
+Existing 4o artifacts remain historical only.
+
+A5's anti-escalation principle remains, but its artificial ceilings are superseded.
+Every class starts at the maximum usable provider ceiling: Claude Code reports
+64,000 output tokens for both frozen Claude models; the ChatGPT transport omits the
+unsupported `max_output_tokens` field and therefore leaves the request at the
+provider maximum, recorded as a 128,000-token advisory ceiling. There is no
+6k→12k→30k ladder and no from-scratch retry. A reasoning-only ceiling result is
+continued in the same signed session with the exact prompt `Continue.`, at most twice.
+A provider/quota/error-149 failure is preserved as incomplete and may be replaced only
+by a new superseding UUID; it is never overwritten or counted as a response.
+
+Each class reruns its competence gate and contamination baseline under its actual
+subscription harness. ChatGPT sessions use exact catalog/model checks, frozen system
+and history input, session-isolated prompt-cache keys, raw Responses events, encrypted
+reasoning replay, and either no tools or only `polynomial_map_report`. Claude sessions
+use a synthetic HOME and config, Max-account preflight, no API environment variables,
+a fixed name, no skills/plugins/slash commands, one persistent stream-JSON process,
+and either no tools/MCP or exactly `ToolSearch` plus the already-running local HTTP
+`polynomial_map_report` server. Init events must prove the registered model and tool
+surface before the first subject response. Provider usage is retained verbatim;
+subscription execution has zero direct-API spend, while Claude's displayed
+API-equivalent cost is recorded separately and never treated as billed spend.
+
+-- Sol (GPT-5.6 Sol), implementation; j, design and execution authorization

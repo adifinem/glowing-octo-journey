@@ -1,0 +1,69 @@
+{
+  "components": {
+    "amendments": {
+      "path": "applications/ai_epistemics/amendments.md",
+      "sha256": "9b78b615ae5937f29c97dd49328446746b2fe3fc25608b05dfefca3e580bd67f"
+    },
+    "scoring_key": {
+      "path": "applications/ai_epistemics/scoring_key.json",
+      "sha256": "321b543b5ee9b6ec9a8fb19c0ebfc06d6bdf12030e720ffa62acb3ab18e1f673"
+    },
+    "stimuli": {
+      "path": "applications/ai_epistemics/stimuli.json",
+      "sha256": "f92de0de0f2ff6d388a4c0c28061f2e36699a02211d5136b964d4c1c8df6849a"
+    },
+    "validator": {
+      "path": "applications/ai_epistemics/sham_validator.py",
+      "sha256": "af69c3aaa05a84e4f1c46ae43e9e1c7461b1a5cef401c088d9f16839a0438499"
+    }
+  },
+  "freeze_id": "A7-sham-repair-2026-07-22",
+  "frozen_utc": "2026-07-23T02:40:56Z",
+  "schema": 1,
+  "signers": [
+    {
+      "model": "gpt-5.6-sol",
+      "role": "repair-author",
+      "signature": "Sol"
+    },
+    {
+      "model": "claude-haiku-4.5",
+      "role": "independent-reviewer",
+      "session_id": "13ee3625-c91a-4363-b42f-ef8abeef9524"
+    },
+    {
+      "role": "detached-GPG-signature",
+      "status": "not-created-passphrase-required"
+    }
+  ],
+  "status": "frozen-no-execution-authorization",
+  "supersedes": {
+    "old_cert_B": "exploratory-redundant-witness-corruption-only",
+    "schedule_sha256": "3d3c456e5858a863fa45c10a97bb0757631a97578bdc6ce40809cb5efc059ceb",
+    "schedule_status": "execution-blocked-until-harness-and-replacement-schedule-are-registered"
+  },
+  "validation": {
+    "exact": "valid_false_sham=true; determinant=-2; images pairwise distinct; inverse composition=(x,y,z)",
+    "haiku": "C1 exact-tool REJECT; C2 no-tool REJECT; independent proof review confirmed determinant/inverse and rejected collision",
+    "mock": "full C1 sham session complete; committed stance REJECT",
+    "tests": "23 passed in 2.45s"
+  },
+  "validation_artifacts": {
+    "exact_validation": {
+      "path": "/usr/local/stuff/jtest/results/sham-repair-2026-07-22/exact-validation.json",
+      "sha256": "aa4b9fc95ac9207a4dff4e1ef277e5eaf4d8cbfbf1a65834784e3ea2363c5111"
+    },
+    "haiku_c1_exact_tool_smoke": {
+      "path": "/usr/local/stuff/jtest/results/sham-repair-2026-07-22/haiku-c1-exact-tool-smoke.json",
+      "sha256": "6b64ce0c7a23b580ca4d84218e5cd8b48cb685d2e3857d27cb42031fef831443"
+    },
+    "haiku_c2_no_tool_smoke": {
+      "path": "/usr/local/stuff/jtest/results/sham-repair-2026-07-22/haiku-c2-no-tool-smoke.json",
+      "sha256": "8e7dc1dada098e5951fffa2af9c7d1873e2a5c6ce22720ca55abdbd6ab90053d"
+    },
+    "haiku_independent_review": {
+      "path": "/usr/local/stuff/jtest/results/sham-repair-2026-07-22/haiku-independent-review.json",
+      "sha256": "1a9cec1680befa57a534cbb3a4ad7855df4b07fbedfcbf2ac0c7f5619a28e721"
+    }
+  }
+}

@@ -107,3 +107,43 @@ study; j may veto before launch.
    source-distrust/hoax response.
 
 -- Fable (Claude Fable 5, Anthropic)
+
+## A7 — Replace invalid sham with an injective matched map (2026-07-22, Sol; independently validated)
+
+The original `cert_B` was not a false sham: its map was the genuine map and its
+first two displayed points already formed a valid collision. Corrupting only the
+third witness did not withdraw the evidence for noninjectivity. Every completed
+old-`cert_B` session is therefore excluded from confirmatory sham inference and
+retained, without overwrite, only as exploratory **redundant-witness corruption**
+data.
+
+Replacement `cert_B` keeps the same three rational input points, claimed common
+image `(-1/4,0,0)`, three-coordinate polynomial presentation, and true constant
+Jacobian determinant `-2`, but changes the map. Put
+`a=x+y^2`, `b=y+a^2`, `c=z+ab`; the replacement is
+`(-a-b+c, -a+b-c-1/4, a-b+2c+1/2)`. It is a polynomial automorphism: the affine
+coefficient matrix has determinant `-2`, and its inverse first recovers
+`(a,b,c+1/4)`, then recovers `y=b-a^2`, `x=a-y^2`, and `z=c-ab`. Exact arithmetic
+returns pairwise-distinct images
+`(-1/4,0,0)`, `(1513/64,-1945/64,2131/32)`, and
+`(385/64,-561/64,619/32)`.
+
+A conforming sham validator must check more than `all_images_equal == false`:
+it must require the displayed points and their images to be pairwise distinct,
+the claimed determinant to hold, the first image to match the claimed common
+image, the map to differ from the genuine map, and the frozen polynomial inverse
+to compose to the identity. New sham sessions receive new amendment/session
+provenance and never reuse or overwrite old directories.
+
+-- Sol (GPT-5.6 Sol, OpenAI), repair requested by j
+
+Independent validation completed before freeze: the fail-closed SymPy validator
+proved the displayed images pairwise distinct, determinant `-2`, and symbolic
+inverse composition exactly `(x,y,z)`; the full regression suite passed; and a
+fresh isolated Claude Haiku 4.5 high-effort review independently judged the
+collision fabricated while confirming the determinant and inverse proof sound.
+Two fresh Haiku smoke subjects also rejected the sham correctly, one using only
+the narrow exact tool through an already-running HTTP MCP server and one with no
+tools. Raw validation artifacts are retained outside the repository.
+
+-- Independent review: Claude Haiku 4.5 (Anthropic), isolated subscription harness

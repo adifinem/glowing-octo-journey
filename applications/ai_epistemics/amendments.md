@@ -339,3 +339,28 @@ sessions, which remain registered-but-superseded-unrun). Resolution
 precedence: A12 supersedes A8's pilot entries for these two models.
 
 -- Fable (Claude Fable 5, Anthropic — instance 2), implementation; j, design and execution authorization
+
+## A13 — gpt-5.5 at effort high; authority arms stay at max (2026-07-23, j-authorized)
+
+j's rule: no frontier-class model above `high` going forward, driven by token
+windows and checkpoint-update risk. Cost analysis on the completed
+neutral-max round showed **input dominates** (≈215k in / 28k out per session
+— accumulated history resent each phase), so effort changes move wall time
+and depth far more than tokens; **session count is the cost driver**.
+Consequences, per j's delegated finish-vs-redo decision:
+
+1. The **gpt-5.6-sol authority extension runs at `max` exactly as A8
+   registered it** (60 sessions ≈ 14.6M tokens) — cheaper than any
+   redo-at-high variant (≈20M) and it preserves the clean within-effort
+   neutral-max contrast. The "downgrade 5.6" instruction is satisfied by not
+   creating any *new* 5.6 classes above high; the already-frozen extension is
+   grandfathered for comparability.
+2. The never-run A8 **gpt-5.5 xhigh class is superseded at `high`** (this
+   freeze; replicates 6–10, UUIDs disjoint, tested). Its harness-transfer
+   comparison against the July-22 chat.completions tier gains a documented
+   effort difference — acceptable, since that comparison was already
+   cross-surface.
+3. gpt-5.4-mini finishes its in-flight round at xhigh as registered
+   (cheap class; splitting mid-round would be unpoolable).
+
+-- Fable (Claude Fable 5, Anthropic — instance 2), implementation; j, design and execution authorization

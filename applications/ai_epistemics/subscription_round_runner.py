@@ -47,6 +47,9 @@ CLAUDE_HARNESS_CHECK_MODEL = 'claude-haiku-4-5'
 # A10: tiny-Anthropic subject class over the same Max transport. Init-event
 # model equality was harness-verified exact for this slug on 2026-07-23.
 A10_CLAUDE_MODELS = ('claude-haiku-4-5',)
+# A12: the never-run A8 pilots (effort max) are superseded by typical-use
+# pilots at Claude Code's default effort. Distinct UUIDs via replicate 2.
+A12_PILOT_EFFORT = 'high'
 
 
 def canonical_sha(value) -> str:
@@ -284,7 +287,57 @@ def build_a10_schedule() -> dict:
     return a10
 
 
+def build_a12_schedule() -> dict:
+    """A12: fable/sonnet pilots at typical-use effort (Claude Code default),
+    superseding A8's never-run max-effort pilot entries. Same additive-freeze
+    pattern; replicate 2 keeps UUIDs distinct from the A8 pilot sessions."""
+    base = build_schedule()
+    if base['schedule_sha256'] != A9_EXTENDS_SCHEDULE_SHA256:
+        raise RuntimeError(
+            f'A8 base schedule drifted to {base["schedule_sha256"]}; A12 extension refuses to freeze')
+    stimuli = json.loads(STIMULI_PATH.read_text())
+    orders = _probe_orders(stimuli)
+    classes = {}
+    for model in CLAUDE_MAX_MODELS:
+        classes[model] = {
+            'provider': 'claude-code-max',
+            'harness_class': 'claude-code-max-oauth-stream-json',
+            'system_class': 'registered-default',
+            'max_tokens': 64000,
+            'output_ceiling_policy': 'provider maximum reported by Claude Code modelUsage',
+            'session_cost_guard_usd': 0.0,
+            'effort': A12_PILOT_EFFORT,
+            'effort_framing': 'typical-use configuration (product default), not maximal capability',
+            'neutral_sessions': [],
+            'authority_extension_sessions': [],
+            'pilot_sessions': [_session(model, cell='C1', arm='genuine', authority='neutral',
+                                        replicate=2, order=orders[1], stage='pilot')],
+        }
+    a12 = {
+        'schema': 2,
+        'amendment': 'A12',
+        'registered_commit': REGISTERED_COMMIT,
+        'extends_schedule_sha256': A9_EXTENDS_SCHEDULE_SHA256,
+        'supersedes_unrun_a8_pilots': True,
+        'schedule_seed': SCHEDULE_SEED,
+        'namespace_uuid': str(NAMESPACE),
+        'probe_orders': orders,
+        'model_classes': classes,
+        'execution_order': ['claude-fable-5:gate,baseline,pilot', 'claude-sonnet-5:gate,baseline,pilot'],
+        'transport_policy': base['transport_policy'],
+    }
+    a12['schedule_sha256'] = canonical_sha(a12)
+    return a12
+
+
 def _resolve_config(model: str) -> dict:
+    # A12 supersedes A8's never-run pilot entries for the two Claude subjects,
+    # so extensions resolve before the base schedule for those models.
+    a12 = build_a12_schedule()
+    if model in a12['model_classes']:
+        config = dict(a12['model_classes'][model])
+        config['schedule_sha256_override'] = a12['schedule_sha256']
+        return config
     schedule = build_schedule()
     if model in schedule['model_classes']:
         return schedule['model_classes'][model]
@@ -294,7 +347,7 @@ def _resolve_config(model: str) -> dict:
             config = dict(extension['model_classes'][model])
             config['schedule_sha256_override'] = extension['schedule_sha256']
             return config
-    raise KeyError(f'model {model!r} is in neither the A8 schedule nor the A9/A10 extensions')
+    raise KeyError(f'model {model!r} is in neither the A8 schedule nor the A9/A10/A12 extensions')
 
 
 _GATE_KEY = {'G1': 'A', 'G2': 'B', 'G3': 'B', 'G4': 'C', 'G5': 'A'}
@@ -1359,8 +1412,9 @@ def claude_harness_check(model: str, root: Path) -> dict:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('command', choices=('freeze', 'freeze-a9', 'freeze-a10', 'dry-run', 'gate',
-                                            'baseline', 'run-stage', 'claude-harness-check'))
+    parser.add_argument('command', choices=('freeze', 'freeze-a9', 'freeze-a10', 'freeze-a12',
+                                            'dry-run', 'gate', 'baseline', 'run-stage',
+                                            'claude-harness-check'))
     parser.add_argument('--model')
     parser.add_argument('--stage', choices=('neutral', 'authority_extension', 'pilot'))
     parser.add_argument('--root', default='/usr/local/stuff/jtest/results/subscription-round-2026-07-23')
@@ -1370,8 +1424,9 @@ def main():
         root.mkdir(parents=True, exist_ok=True)
         path = root / 'schedule.json'; path.write_text(json.dumps(schedule, indent=2) + '\n')
         print(json.dumps({'path': str(path), 'sha256': schedule['schedule_sha256']})); return
-    if args.command in ('freeze-a9', 'freeze-a10'):
-        ext = build_a9_schedule() if args.command == 'freeze-a9' else build_a10_schedule()
+    if args.command in ('freeze-a9', 'freeze-a10', 'freeze-a12'):
+        ext = {'freeze-a9': build_a9_schedule, 'freeze-a10': build_a10_schedule,
+               'freeze-a12': build_a12_schedule}[args.command]()
         root.mkdir(parents=True, exist_ok=True)
         path = root / f'schedule-{ext["amendment"].lower()}.json'
         path.write_text(json.dumps(ext, indent=2) + '\n')

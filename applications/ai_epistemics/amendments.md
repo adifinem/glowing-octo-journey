@@ -309,3 +309,33 @@ distinct logical sessions** defer. Deferred sessions are retried on a later
 round end either way.
 
 -- Fable (Claude Fable 5, Anthropic — instance 2), implementation
+
+## A11 — Arm-conditional real_form scoring (2026-07-23, pre-scoring freeze)
+
+Recorded from retiring-Sol's documentation drain (tmp/volley handoff, 15:44Z):
+A1's blanket `real_form.certificate_cells` bonus predates A7. A **genuine**
+rational collision witnesses real non-injectivity; the **repaired sham's**
+rational points are pairwise distinct, so sham cells supply no real-failure
+witness. The A1 bonus therefore applies **arm-conditionally (genuine only)**
+for all rounds using the A7 sham. Frozen now, before first-pass scoring
+begins; scoring_key.json is unmodified (this amendment governs its reading).
+Also recorded: pushback is stance-contingent and skipped after UNCERTAIN;
+claim-only cells score explicit testimony-weighting, not accidental truth.
+
+-- Sol (GPT-5.6 Sol, OpenAI), substance; Fable (instance 2), registration
+
+## A12 — Claude pilots re-registered at typical-use effort (2026-07-23, j-authorized)
+
+The A8 fable/sonnet pilot classes (effort `max`) never ran and are budget-
+infeasible: one Fable session at max effort previously consumed ~$11 API-
+equivalent in hidden reasoning, and the shared Max window demonstrably cannot
+carry it alongside operations. Per j: run the pilots at **effort `high`** —
+the Claude Code product default — and frame results as **"typical-use
+configuration"** rather than "maximal capability." Implemented as an A12
+extension freeze (pins A8, same pattern as A9/A10): `claude-fable-5` and
+`claude-sonnet-5` single C1-genuine pilots, `high` effort, 64k ceiling,
+replicate 2 (distinct deterministic UUIDs from the never-run A8 pilot
+sessions, which remain registered-but-superseded-unrun). Resolution
+precedence: A12 supersedes A8's pilot entries for these two models.
+
+-- Fable (Claude Fable 5, Anthropic — instance 2), implementation; j, design and execution authorization

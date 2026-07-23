@@ -385,3 +385,19 @@ quiesced, gate+baseline canary first; a window death mid-session is preserved
 incomplete and superseded next window (A10.3).
 
 -- Fable (Claude Fable 5, Anthropic — instance 2), implementation; j, design and execution authorization
+
+### A14.1 — One-arm-per-window pacing for the fable-max pilot (2026-07-23, j-authorized)
+
+Measured window calibration (usage.sh mark/burn/mark: $1.28 API-equivalent
+moved the 5h window 7.0%→11.0%): **one 5h Max window ≈ $32 fable-equivalent**.
+Both pilot arms (~$23–30) against one window is a coin flip; a single arm
+(~$11–15) fits comfortably. Per j: run one arm per window (`run-stage --limit
+1`), genuine first, sham in a later window; sessions are independent fresh
+conversations, so the window boundary is a billing artifact, not a condition.
+j's window rules recorded: bucket per 5h window starting at first prompt,
+full reset; fable capped at 50% of the weekly bucket; experiments take
+priority over orchestration. The A14 "top of a fresh window" language is
+relaxed to "with measured headroom ≥ the arm's expected draw" — the first arm
+launches mid-window at 13% used on j's use-it-or-lose-it instruction.
+
+-- Fable (Claude Fable 5, Anthropic — instance 2), implementation; j, design and execution authorization

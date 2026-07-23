@@ -1432,7 +1432,10 @@ def run_baseline(model: str, config: dict, root: Path) -> dict:
     return artifact
 
 
-def run_stage(model: str, stage: str, root: Path):
+def run_stage(model: str, stage: str, root: Path, limit: int | None = None):
+    """limit: execute at most this many provider sessions this invocation
+    (skips of already-complete sessions do not count). Window-pacing control
+    per A14.1 — one fable-max arm per 5h window."""
     config = _resolve_config(model)
     key = {'neutral': 'neutral_sessions', 'authority_extension': 'authority_extension_sessions',
            'pilot': 'pilot_sessions'}[stage]
@@ -1440,7 +1443,13 @@ def run_stage(model: str, stage: str, root: Path):
     stage_root = root / model / stage; stage_root.mkdir(parents=True, exist_ok=True)
     completed, deferred = [], []
     deferred_streak = 0
+    executed = 0
     for session in sessions:
+        if limit is not None and executed >= limit:
+            print(json.dumps({'limit_reached': limit, 'model': model, 'stage': stage,
+                              'note': 'remaining sessions intentionally unattempted this invocation'}),
+                  flush=True)
+            break
         run_session, resolved, failures = session, False, 0
         for supersede in range(0, 4):
             if supersede:
@@ -1466,7 +1475,7 @@ def run_stage(model: str, stage: str, root: Path):
                 if failures >= 2:
                     break  # defer this logical session; remaining supersede slots stay available
                 continue  # preserved incomplete; next loop iteration supersedes it
-            completed.append(str(run_dir)); resolved = True
+            completed.append(str(run_dir)); resolved = True; executed += 1
             print(json.dumps({'completed': len(completed), 'planned': len(sessions), 'model': model,
                               'stage': stage, 'run_dir': str(run_dir),
                               'supersedes': run_session.get('supersedes')}), flush=True)
@@ -1539,6 +1548,7 @@ def main():
     parser.add_argument('--model')
     parser.add_argument('--stage', choices=('neutral', 'authority_extension', 'pilot'))
     parser.add_argument('--root', default='/usr/local/stuff/jtest/results/subscription-round-2026-07-23')
+    parser.add_argument('--limit', type=int, default=None)
     args = parser.parse_args(); root = Path(args.root)
     schedule = build_schedule()
     if args.command == 'freeze':
@@ -1577,7 +1587,7 @@ def main():
         artifact = run_baseline(args.model, config, root); print(json.dumps({'cost_usd':artifact['cost_usd']}))
     else:
         if not args.stage: parser.error('--stage is required')
-        run_stage(args.model, args.stage, root)
+        run_stage(args.model, args.stage, root, limit=args.limit)
 
 
 if __name__ == '__main__':

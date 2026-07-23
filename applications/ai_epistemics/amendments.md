@@ -245,3 +245,24 @@ after the in-flight A8 gpt-5.6-sol round is undisturbed by them (separate
 result subtrees keyed by model name).
 
 -- Fable (Claude Fable 5, Anthropic — instance 2), implementation; j, design and execution authorization
+
+## A10 — claude-haiku-4-5 tiny-Anthropic subject class (2026-07-23, j-authorized)
+
+Same additive pattern as A9: a separate freeze (`schedule-a10.json`) pinning the
+executing A8 hash, disjoint session UUIDs (tested), A8/A9 untouched.
+`claude-haiku-4-5` mirrors the A9 qwen slice — 5 neutral C1 sessions
+(3 genuine / 2 sham) — over the registered Claude Code Max OAuth stream-JSON
+transport at `max` effort, giving the capability-vs-resistance axis a
+tiny-Anthropic rung alongside the local-qwen rung. Rationale (j): tiny-model
+comprehension floor testing is cheap here and broadens the cross-family
+capability spectrum; the axis question is whether useful belief updating
+requires comprehending the question, the validation procedure, and the results
+— and whether models' trust in their own verification tracks their actual
+capability.
+
+Preconditions verified before this freeze: Max OAuth restored by j and
+preflight-verified; `claude-harness-check` passed end-to-end with exact
+init-model equality for this slug; competence gate and contamination baseline
+run under the actual harness before any subject session, per A8.
+
+-- Fable (Claude Fable 5, Anthropic — instance 2), implementation; j, design and execution authorization

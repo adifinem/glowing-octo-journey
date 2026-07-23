@@ -44,6 +44,9 @@ A9_OPENAI_SUBSCRIPTION_MODELS = ('gpt-5.4-mini',)
 A9_LOCAL_MODELS = ('qwen3.6-35b-a3b',)
 LOCAL_LLAMA_BASE_URL = 'http://127.0.0.1:8080/v1'
 CLAUDE_HARNESS_CHECK_MODEL = 'claude-haiku-4-5'
+# A10: tiny-Anthropic subject class over the same Max transport. Init-event
+# model equality was harness-verified exact for this slug on 2026-07-23.
+A10_CLAUDE_MODELS = ('claude-haiku-4-5',)
 
 
 def canonical_sha(value) -> str:
@@ -234,16 +237,64 @@ def build_a9_schedule() -> dict:
     return a9
 
 
+def build_a10_schedule() -> dict:
+    """A10: claude-haiku-4-5 as a tiny-Anthropic subject over the registered
+    Max transport, mirroring the A9 qwen slice (5 x C1, 3 genuine / 2 sham).
+    Additive, like A9: pins the executing A8 hash, never rebuilds it."""
+    base = build_schedule()
+    if base['schedule_sha256'] != A9_EXTENDS_SCHEDULE_SHA256:
+        raise RuntimeError(
+            f'A8 base schedule drifted to {base["schedule_sha256"]}; A10 extension refuses to freeze')
+    stimuli = json.loads(STIMULI_PATH.read_text())
+    orders = _probe_orders(stimuli)
+    classes = {}
+    for model in A10_CLAUDE_MODELS:
+        sessions = [_session(model, cell='C1', arm='genuine', authority='neutral',
+                             replicate=r, order=orders[r - 1], stage='neutral') for r in (1, 2, 3)]
+        sessions += [_session(model, cell='C1', arm='sham', authority='neutral',
+                              replicate=r, order=orders[r - 1], stage='neutral') for r in (1, 2)]
+        classes[model] = {
+            'provider': 'claude-code-max',
+            'harness_class': 'claude-code-max-oauth-stream-json',
+            'system_class': 'registered-default',
+            'max_tokens': 64000,
+            'output_ceiling_policy': 'provider maximum reported by Claude Code modelUsage',
+            'session_cost_guard_usd': 0.0,
+            'effort': 'max',
+            'neutral_sessions': sessions,
+            'authority_extension_sessions': [],
+            'pilot_sessions': [],
+        }
+    a10 = {
+        'schema': 2,
+        'amendment': 'A10',
+        'registered_commit': REGISTERED_COMMIT,
+        'extends_schedule_sha256': A9_EXTENDS_SCHEDULE_SHA256,
+        'schedule_seed': SCHEDULE_SEED,
+        'namespace_uuid': str(NAMESPACE),
+        'probe_orders': orders,
+        'model_classes': classes,
+        'execution_order': ['claude-haiku-4-5:gate,baseline,neutral'],
+        'transport_policy': base['transport_policy'],
+        'harness_validation': (
+            'claude-harness-check passed 2026-07-23 (Max OAuth preflight, init provenance, '
+            'MCP tool round-trip, artifact export) with exact init model equality for this slug'),
+    }
+    a10['schedule_sha256'] = canonical_sha(a10)
+    return a10
+
+
 def _resolve_config(model: str) -> dict:
     schedule = build_schedule()
     if model in schedule['model_classes']:
         return schedule['model_classes'][model]
-    a9 = build_a9_schedule()
-    if model in a9['model_classes']:
-        config = dict(a9['model_classes'][model])
-        config['schedule_sha256_override'] = a9['schedule_sha256']
-        return config
-    raise KeyError(f'model {model!r} is in neither the A8 schedule nor the A9 extension')
+    for build in (build_a9_schedule, build_a10_schedule):
+        extension = build()
+        if model in extension['model_classes']:
+            config = dict(extension['model_classes'][model])
+            config['schedule_sha256_override'] = extension['schedule_sha256']
+            return config
+    raise KeyError(f'model {model!r} is in neither the A8 schedule nor the A9/A10 extensions')
 
 
 _GATE_KEY = {'G1': 'A', 'G2': 'B', 'G3': 'B', 'G4': 'C', 'G5': 'A'}
@@ -587,7 +638,7 @@ class ClaudeCodeMaxTransport:
         return path
 
     def start(self, *, system: str, model: str, config: dict, session: dict):
-        if model not in CLAUDE_MAX_MODELS and not config.get('harness_check'):
+        if model not in CLAUDE_MAX_MODELS + A10_CLAUDE_MODELS and not config.get('harness_check'):
             raise RuntimeError(f'unregistered Claude Max model: {model!r}')
         self.system, self.model, self.config, self.session = system, model, config, session
         base = Path(os.environ.get('CLAUDE_SUBJECT_ROOT', '/usr/local/stuff/.claude-subscription-runs'))
@@ -1276,8 +1327,8 @@ def claude_harness_check(model: str, root: Path) -> dict:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('command', choices=('freeze', 'freeze-a9', 'dry-run', 'gate', 'baseline',
-                                            'run-stage', 'claude-harness-check'))
+    parser.add_argument('command', choices=('freeze', 'freeze-a9', 'freeze-a10', 'dry-run', 'gate',
+                                            'baseline', 'run-stage', 'claude-harness-check'))
     parser.add_argument('--model')
     parser.add_argument('--stage', choices=('neutral', 'authority_extension', 'pilot'))
     parser.add_argument('--root', default='/usr/local/stuff/jtest/results/subscription-round-2026-07-23')
@@ -1287,12 +1338,13 @@ def main():
         root.mkdir(parents=True, exist_ok=True)
         path = root / 'schedule.json'; path.write_text(json.dumps(schedule, indent=2) + '\n')
         print(json.dumps({'path': str(path), 'sha256': schedule['schedule_sha256']})); return
-    if args.command == 'freeze-a9':
-        a9 = build_a9_schedule()
+    if args.command in ('freeze-a9', 'freeze-a10'):
+        ext = build_a9_schedule() if args.command == 'freeze-a9' else build_a10_schedule()
         root.mkdir(parents=True, exist_ok=True)
-        path = root / 'schedule-a9.json'; path.write_text(json.dumps(a9, indent=2) + '\n')
-        print(json.dumps({'path': str(path), 'sha256': a9['schedule_sha256'],
-                          'extends': a9['extends_schedule_sha256']})); return
+        path = root / f'schedule-{ext["amendment"].lower()}.json'
+        path.write_text(json.dumps(ext, indent=2) + '\n')
+        print(json.dumps({'path': str(path), 'sha256': ext['schedule_sha256'],
+                          'extends': ext['extends_schedule_sha256']})); return
     if args.command == 'claude-harness-check':
         report = claude_harness_check(args.model or CLAUDE_HARNESS_CHECK_MODEL, root)
         print(json.dumps({'passed': report['passed'], 'checks': report.get('checks'),

@@ -294,3 +294,18 @@ stop the round as systemic** (so a dead credential cannot burn the schedule
 into a pile of superseded husks). Tested with a flaky-transport unit test.
 
 -- Fable (Claude Fable 5, Anthropic — instance 2), implementation
+
+### A10.3 — Defer cursed sessions; systemic stop only on consecutive distinct deferrals (2026-07-23)
+
+One 5.4-mini logical session (C2 genuine) drew three provider stream drops in a
+row (lifetimes 91s/382s/713s — no consistent cap, so transient infrastructure,
+not payload determinism; a matched synthetic probe at xhigh completed in 209s)
+and A10.2's per-session stop killed the round while 27 untouched sessions
+waited. Policy refined: a logical session that fails twice consecutively (or
+exhausts its supersession budget) is **deferred** — logged, preserved, round
+continues — and the round stops as systemic only when **two consecutive
+distinct logical sessions** defer. Deferred sessions are retried on a later
+`run-stage` invocation via their remaining supersede slots and reported at
+round end either way.
+
+-- Fable (Claude Fable 5, Anthropic — instance 2), implementation

@@ -1264,7 +1264,8 @@ def run_stage(model: str, stage: str, root: Path):
            'pilot': 'pilot_sessions'}[stage]
     sessions = config[key]
     stage_root = root / model / stage; stage_root.mkdir(parents=True, exist_ok=True)
-    completed = []
+    completed, deferred = [], []
+    deferred_streak = 0
     for session in sessions:
         run_session, resolved, failures = session, False, 0
         for supersede in range(0, 4):
@@ -1289,19 +1290,26 @@ def run_stage(model: str, stage: str, root: Path):
                                   'stage': stage, 'error': type(exc).__name__,
                                   'message': str(exc)[:300]}), flush=True)
                 if failures >= 2:
-                    raise RuntimeError(
-                        f'two consecutive failures for logical session {session["session_id"]} '
-                        f'({type(exc).__name__}); stopping the round as systemic') from exc
+                    break  # defer this logical session; remaining supersede slots stay available
                 continue  # preserved incomplete; next loop iteration supersedes it
             completed.append(str(run_dir)); resolved = True
             print(json.dumps({'completed': len(completed), 'planned': len(sessions), 'model': model,
                               'stage': stage, 'run_dir': str(run_dir),
                               'supersedes': run_session.get('supersedes')}), flush=True)
             break
-        if not resolved:
-            raise RuntimeError(
-                f'session {session["session_id"]} has exhausted its supersession budget (3); '
-                'inspect the preserved incomplete directories before continuing')
+        if resolved:
+            deferred_streak = 0
+        else:
+            deferred.append(session['session_id'])
+            deferred_streak += 1
+            print(json.dumps({'deferred': session['session_id'], 'model': model, 'stage': stage,
+                              'reason': 'repeated failures or exhausted supersession budget'}), flush=True)
+            if deferred_streak >= 2:
+                raise RuntimeError(
+                    'two consecutive logical sessions deferred; stopping the round as systemic')
+    if deferred:
+        print(json.dumps({'round_deferred_sessions': deferred, 'model': model, 'stage': stage,
+                          'note': 'rerun run-stage to retry remaining supersede slots'}), flush=True)
     return completed
 
 

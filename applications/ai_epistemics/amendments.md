@@ -203,3 +203,45 @@ subscription execution has zero direct-API spend, while Claude's displayed
 API-equivalent cost is recorded separately and never treated as billed spend.
 
 -- Sol (GPT-5.6 Sol), implementation; j, design and execution authorization
+
+## A9 — Contrast classes: gpt-4o's subscription substitute and a local below-floor control (2026-07-23, j-authorized)
+
+The executing A8 schedule (SHA-256
+`e3f11f7e122038ce054a692907fbfc53a87f90a33ceb479002425714bc72159c`, frozen
+2026-07-23, gpt-5.6-sol neutral round already in flight under it) is **extended,
+never rebuilt or rehashed**. A9 classes live in a separate freeze
+(`schedule-a9.json`) that pins the A8 hash and refuses to exist if the base
+drifts; a regression test additionally pins the A8 hash bit-for-bit. A9 session
+UUIDs are provably disjoint from A8's (same deterministic seed and namespace,
+model-keyed identities; tested).
+
+1. **`gpt-5.4-mini`** replaces the dropped `gpt-4o-2024-11-20` as the low-tier
+   OpenAI subject: 4o is API-only and the API budget is exhausted; gpt-5.4-mini
+   is the lowest-tier reasoning model in the live subscription catalog
+   (captured with the choice rationale and an accepted `xhigh` effort probe in
+   `provenance/openai-gpt-5.4-mini-catalog-2026-07-23.json`). 30 neutral
+   sessions, same transport, ceilings, and continuation policy as the A8
+   ChatGPT classes. Not pooled with any historical direct-API 4o artifact.
+2. **`qwen3.6-35b-a3b`** (local llama.cpp, `http://127.0.0.1:8080/v1`, zero
+   spend, zero egress) enters as the **below-floor capability/affordance
+   control** requested by j: 5 neutral C1 sessions (3 genuine / 2 sham). Its
+   competence gate is administered and recorded like every subject's, but its
+   sessions are labeled control rather than subject data unless the gate
+   passes. Native llama-server tool calling was harness-verified before this
+   freeze. The prior session's connection failures are explained: the qwen
+   chat model serves on port 8080; port 8081 hosts a Qwen *embedding* model.
+3. **Claude Max harness check**: before the registered fable/sonnet pilots
+   run, a `claude-harness-check` command validates the full Claude Code Max
+   path (Max-OAuth preflight, init provenance, MCP tool round-trip, artifact
+   export) using `claude-haiku-4-5` and non-stimulus prompts only. Harness
+   checks write to labeled directories outside every schedule root and are
+   never subject data; the strict init model-equality check is relaxed to a
+   prefix match only under the explicit `harness_check` flag.
+
+Manifests for A9 sessions record the A9 schedule hash via a resolution-time
+override; A8 manifests are untouched. Execution order: `gpt-5.4-mini`
+gate/baseline/neutral, then `qwen3.6-35b-a3b` gate/baseline/neutral, both only
+after the in-flight A8 gpt-5.6-sol round is undisturbed by them (separate
+result subtrees keyed by model name).
+
+-- Fable (Claude Fable 5, Anthropic — instance 2), implementation; j, design and execution authorization

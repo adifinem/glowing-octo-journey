@@ -1,0 +1,25 @@
+{
+  "captured_utc": "2026-07-23T07:36:58.689429+00:00",
+  "source": "live ChatGPT subscription catalog via hermes codex credentials (_fetch_models_from_api)",
+  "catalog": [
+    "gpt-5.6-sol",
+    "gpt-5.6-terra",
+    "gpt-5.6-luna",
+    "gpt-5.5",
+    "gpt-5.4",
+    "gpt-5.4-mini",
+    "gpt-5.3-codex-spark",
+    "gpt-5.6-sol-pro",
+    "gpt-5.6-terra-pro",
+    "gpt-5.6-luna-pro"
+  ],
+  "chosen_model": "gpt-5.4-mini",
+  "chosen_reason": "gpt-4o substitute: 4o is API-only and API budget is exhausted; gpt-5.4-mini is the lowest-tier reasoning model in the live subscription catalog, maximizing the capability spread against gpt-5.5 and gpt-5.6-sol for the capability-vs-resistance axis. gpt-5.6-luna remains unused; no dated snapshot slug exists for gpt-5.4-mini in this catalog.",
+  "effort_probe": {
+    "requested": "xhigh",
+    "result": "accepted",
+    "returned_model": "gpt-5.4-mini",
+    "probe_prompt_class": "non-subject harness echo",
+    "probe_utc": "2026-07-23T07:4xZ"
+  }
+}

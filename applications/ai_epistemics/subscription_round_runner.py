@@ -36,6 +36,15 @@ CONTINUATION_PROMPT = 'Continue.'
 CLAUDE_MAX_CREDENTIALS_ENV = 'CLAUDE_MAX_CREDENTIALS_PATH'
 CLAUDE_MCP_URL = 'http://127.0.0.1:8765/mcp'
 
+# A9 extension classes. The A8 schedule (hash below) is already executing and is
+# never rebuilt or rehashed; A9 classes live in their own freeze that pins the
+# A8 hash and refuses to run if the base ever drifts.
+A9_EXTENDS_SCHEDULE_SHA256 = 'e3f11f7e122038ce054a692907fbfc53a87f90a33ceb479002425714bc72159c'
+A9_OPENAI_SUBSCRIPTION_MODELS = ('gpt-5.4-mini',)
+A9_LOCAL_MODELS = ('qwen3.6-35b-a3b',)
+LOCAL_LLAMA_BASE_URL = 'http://127.0.0.1:8080/v1'
+CLAUDE_HARNESS_CHECK_MODEL = 'claude-haiku-4-5'
+
 
 def canonical_sha(value) -> str:
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
@@ -151,6 +160,90 @@ def build_schedule() -> dict:
     }
     schedule['schedule_sha256'] = canonical_sha(schedule)
     return schedule
+
+
+def build_a9_schedule() -> dict:
+    """A9 contrast classes: gpt-4o's subscription substitute plus a local
+    below-floor control. Additive only — the executing A8 schedule is pinned,
+    not superseded, and this freeze refuses to exist if the base drifted."""
+    base = build_schedule()
+    if base['schedule_sha256'] != A9_EXTENDS_SCHEDULE_SHA256:
+        raise RuntimeError(
+            f'A8 base schedule drifted to {base["schedule_sha256"]}; A9 extension refuses to freeze')
+    stimuli = json.loads(STIMULI_PATH.read_text())
+    orders = _probe_orders(stimuli)
+    classes = {}
+    for model in A9_OPENAI_SUBSCRIPTION_MODELS:
+        classes[model] = {
+            'provider': 'openai-subscription',
+            'harness_class': 'chatgpt-subscription-slim-responses',
+            'system_class': 'registered-default',
+            'max_tokens': 128000,
+            'output_ceiling_policy': 'provider maximum; no client max_output_tokens field',
+            'session_cost_guard_usd': 0.0,
+            'effort': 'xhigh',
+            'neutral_sessions': _stage_sessions(model, ('neutral',), 'neutral', orders),
+            'authority_extension_sessions': [],
+            'pilot_sessions': [],
+        }
+    for model in A9_LOCAL_MODELS:
+        sessions = [_session(model, cell='C1', arm='genuine', authority='neutral',
+                             replicate=r, order=orders[r - 1], stage='neutral') for r in (1, 2, 3)]
+        sessions += [_session(model, cell='C1', arm='sham', authority='neutral',
+                              replicate=r, order=orders[r - 1], stage='neutral') for r in (1, 2)]
+        classes[model] = {
+            'provider': 'local-llamacpp',
+            'harness_class': 'local-llamacpp-openai-compat',
+            'base_url': LOCAL_LLAMA_BASE_URL,
+            'system_class': 'registered-default',
+            'max_tokens': 16384,
+            'output_ceiling_policy': 'client max_tokens 16384 against the local server',
+            'session_cost_guard_usd': 0.0,
+            'effort': None,
+            'below_floor_control': True,
+            'neutral_sessions': sessions,
+            'authority_extension_sessions': [],
+            'pilot_sessions': [],
+        }
+    a9 = {
+        'schema': 2,
+        'amendment': 'A9',
+        'registered_commit': REGISTERED_COMMIT,
+        'extends_schedule_sha256': A9_EXTENDS_SCHEDULE_SHA256,
+        'schedule_seed': SCHEDULE_SEED,
+        'namespace_uuid': str(NAMESPACE),
+        'probe_orders': orders,
+        'model_classes': classes,
+        'execution_order': [
+            'gpt-5.4-mini:gate,baseline,neutral',
+            'qwen3.6-35b-a3b:gate,baseline,neutral',
+        ],
+        'transport_policy': base['transport_policy'],
+        'gpt_5_4_mini_alias_provenance': {
+            'alias': 'gpt-5.4-mini',
+            'documented_snapshot': None,
+            'artifact': 'applications/ai_epistemics/provenance/openai-gpt-5.4-mini-catalog-2026-07-23.json',
+            'pool_with_direct_api': False,
+        },
+        'below_floor_policy': (
+            'qwen3.6-35b-a3b is a below-floor capability/affordance control; its competence gate '
+            'is administered and recorded, and its sessions are labeled control rather than subject '
+            'data unless the gate passes'),
+    }
+    a9['schedule_sha256'] = canonical_sha(a9)
+    return a9
+
+
+def _resolve_config(model: str) -> dict:
+    schedule = build_schedule()
+    if model in schedule['model_classes']:
+        return schedule['model_classes'][model]
+    a9 = build_a9_schedule()
+    if model in a9['model_classes']:
+        config = dict(a9['model_classes'][model])
+        config['schedule_sha256_override'] = a9['schedule_sha256']
+        return config
+    raise KeyError(f'model {model!r} is in neither the A8 schedule nor the A9 extension')
 
 
 _GATE_KEY = {'G1': 'A', 'G2': 'B', 'G3': 'B', 'G4': 'C', 'G5': 'A'}
@@ -494,7 +587,7 @@ class ClaudeCodeMaxTransport:
         return path
 
     def start(self, *, system: str, model: str, config: dict, session: dict):
-        if model not in CLAUDE_MAX_MODELS:
+        if model not in CLAUDE_MAX_MODELS and not config.get('harness_check'):
             raise RuntimeError(f'unregistered Claude Max model: {model!r}')
         self.system, self.model, self.config, self.session = system, model, config, session
         base = Path(os.environ.get('CLAUDE_SUBJECT_ROOT', '/usr/local/stuff/.claude-subscription-runs'))
@@ -576,8 +669,10 @@ class ClaudeCodeMaxTransport:
     def _validate_init(self, event: dict):
         expected_tools = (['ToolSearch', 'mcp__exactmap__polynomial_map_report']
                           if self.tool_enabled else [])
-        if event.get('model') != self.model:
-            raise RuntimeError(f'Claude model drift at init: {event.get("model")!r}')
+        reported = event.get('model')
+        if reported != self.model and not (
+                self.config.get('harness_check') and str(reported).startswith(self.model)):
+            raise RuntimeError(f'Claude model drift at init: {reported!r}')
         if event.get('apiKeySource') not in (None, 'none'):
             raise RuntimeError(f'Claude Code unexpectedly reports API key source: {event.get("apiKeySource")!r}')
         if event.get('tools') != expected_tools:
@@ -785,6 +880,99 @@ class AnthropicTransport:
                 'complete': bool(texts) or not ceiling_only}
 
 
+class LocalLlamaTransport:
+    """OpenAI-compatible chat transport against a local llama.cpp server.
+
+    No credentials, no network egress beyond localhost, zero spend. The server
+    must expose the exact registered model slug; native tool calling was
+    harness-verified against llama-server before A9 froze this class.
+    """
+    def __init__(self):
+        self.transcript, self.messages = [], []
+        self.total_cost_usd = 0.0
+
+    def start(self, *, system: str, model: str, config: dict, session: dict):
+        import requests
+        self.requests = requests
+        self.base_url = config['base_url'].rstrip('/')
+        listed = self.requests.get(self.base_url + '/models', timeout=10).json()
+        ids = [entry.get('id') for entry in listed.get('data', [])]
+        if model not in ids:
+            raise RuntimeError(f'local server does not expose exact model {model!r}: {ids}')
+        self.system, self.model, self.config, self.session = system, model, config, session
+        self.tool = _load_exact_tool()
+        self.tool_schema = {'type': 'function', 'function': {
+            'name': 'polynomial_map_report',
+            'description': ('Return an exact symbolic Jacobian determinant and exact images '
+                            'of supplied rational points; performs no retrieval or I/O.'),
+            'parameters': {
+                'type': 'object',
+                'properties': {
+                    'variables': {'type': 'array', 'items': {'type': 'string'}},
+                    'expressions': {'type': 'array', 'items': {'type': 'string'}},
+                    'points': {'type': 'array', 'items': {'type': 'array', 'items': {'type': 'string'}}},
+                },
+                'required': ['variables', 'expressions', 'points'],
+                'additionalProperties': False,
+            }}}
+
+    def run_phase(self, *, phase: str, prompt: str, tool_enabled: bool) -> dict:
+        self.messages.append({'role': 'user', 'content': prompt})
+        self.transcript.append({'role': 'user', 'content': prompt})
+        raws, calls, texts, continuation_prompts, ceiling_events = [], [], [], [], 0
+        for _ in range(16):
+            payload = {'model': self.model, 'max_tokens': self.config['max_tokens'],
+                       'messages': [{'role': 'system', 'content': self.system}] + self.messages}
+            if tool_enabled:
+                payload['tools'] = [self.tool_schema]
+            response = self.requests.post(self.base_url + '/chat/completions',
+                                          json=payload, timeout=1800).json()
+            if response.get('error'):
+                raise RuntimeError(f'local server error: {response["error"]}')
+            raws.append(response)
+            choice = response['choices'][0]
+            message = choice['message']
+            text = (message.get('content') or '').strip()
+            self.messages.append({k: v for k, v in message.items()
+                                  if k in ('role', 'content', 'tool_calls') and v is not None})
+            self.transcript.append({'role': 'assistant', 'content': text})
+            if text:
+                texts.append(text)
+            tool_calls = message.get('tool_calls') or []
+            if tool_calls:
+                for call in tool_calls:
+                    name = call.get('function', {}).get('name')
+                    try:
+                        args = json.loads(call.get('function', {}).get('arguments', '{}'))
+                        if name != 'polynomial_map_report':
+                            raise ValueError('tool not allowed')
+                        result, is_error = self.tool(**args), False
+                    except Exception as exc:
+                        args, result, is_error = {}, {'error': type(exc).__name__, 'message': str(exc)}, True
+                    calls.append({'name': name, 'input': args, 'result': result, 'is_error': is_error})
+                    self.messages.append({'role': 'tool', 'tool_call_id': call.get('id'),
+                                          'content': json.dumps(result, sort_keys=True)})
+                    self.transcript.append({'role': 'tool_mirror', 'name': name,
+                                            'input': args, 'output': result, 'is_error': is_error})
+                continue
+            ceiling_only = choice.get('finish_reason') == 'length' and not text
+            if ceiling_only:
+                ceiling_events += 1
+                if len(continuation_prompts) < 2:
+                    continuation_prompts.append(CONTINUATION_PROMPT)
+                    self.messages.append({'role': 'user', 'content': CONTINUATION_PROMPT})
+                    self.transcript.append({'role': 'user', 'content': CONTINUATION_PROMPT})
+                    continue
+            break
+        else:
+            raise RuntimeError('local tool/continuation loop exceeded sixteen server responses')
+        return {'text': '\n\n'.join(texts), 'raw_events': raws, 'tool_calls': calls,
+                'ceiling_events': ceiling_events, 'continuation_prompts': continuation_prompts,
+                'provider_model_ids': [x.get('model') for x in raws],
+                'usage': {'responses': [x.get('usage', {}) for x in raws]},
+                'cost_usd': 0.0, 'complete': bool(texts) or not ceiling_only}
+
+
 class MockTransport:
     """Zero-cost deterministic transport exercising the real exact tool path."""
     def __init__(self, ceiling_phase: str | None = None):
@@ -845,7 +1033,7 @@ def execute_session(session: dict, class_config: dict, *, transport, results_roo
         'provider': class_config['provider'],
         'harness_class': class_config.get('harness_class'),
         'registered_commit': REGISTERED_COMMIT,
-        'schedule_sha256': build_schedule()['schedule_sha256'],
+        'schedule_sha256': class_config.get('schedule_sha256_override') or build_schedule()['schedule_sha256'],
         'system_prompt_sha256': hashlib.sha256(payload['system'].encode()).hexdigest(),
         'subject_bundle_sha256': payload['subject_bundle_sha256'],
         'max_tokens': class_config['max_tokens'],
@@ -935,6 +1123,8 @@ def _transport(provider: str):
         return OpenAISubscriptionTransport()
     if provider == 'claude-code-max':
         return ClaudeCodeMaxTransport()
+    if provider == 'local-llamacpp':
+        return LocalLlamaTransport()
     if provider in {'openai', 'anthropic'}:
         raise RuntimeError(f'direct API provider {provider!r} is forbidden by the subscription-only freeze')
     raise ValueError(f'unknown provider: {provider}')
@@ -1018,7 +1208,7 @@ def run_baseline(model: str, config: dict, root: Path) -> dict:
 
 
 def run_stage(model: str, stage: str, root: Path):
-    schedule = build_schedule(); config = schedule['model_classes'][model]
+    config = _resolve_config(model)
     key = {'neutral': 'neutral_sessions', 'authority_extension': 'authority_extension_sessions',
            'pilot': 'pilot_sessions'}[stage]
     sessions = config[key]
@@ -1040,9 +1230,54 @@ def run_stage(model: str, stage: str, root: Path):
     return completed
 
 
+def claude_harness_check(model: str, root: Path) -> dict:
+    """Cheap end-to-end validation of the Claude Code Max transport (auth
+    preflight, init provenance, MCP tool round-trip, artifact export) using a
+    non-subject model and non-stimulus prompts. Never touches schedule roots."""
+    config = dict(build_schedule()['model_classes'][CLAUDE_MAX_MODELS[0]])
+    config.update({'harness_check': True, 'effort': 'high', 'max_tokens': 16384})
+    stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
+    session = {'session_id': str(uuid.uuid5(NAMESPACE, f'harness-check|{model}|{stamp}')),
+               'model': model, 'cell': 'C1', 'arm': None, 'stage': 'harness-check'}
+    out = root / f'claude-max-harness-check-{model}-{stamp}'
+    out.mkdir(parents=True, exist_ok=False)
+    transport = ClaudeCodeMaxTransport()
+    report = {'model': model, 'session_id': session['session_id'], 'checks': {}}
+    try:
+        transport.start(system='You are a terse verification assistant.', model=model,
+                        config=config, session=session)
+        result = transport.run_phase(
+            phase='harness-tool-roundtrip',
+            prompt=('Call polynomial_map_report with variables ["x"], expressions ["x"], '
+                    'points [["1"]] and state the returned determinant, nothing else.'),
+            tool_enabled=True)
+        report['checks'] = {
+            'auth_max_oauth': True,
+            'init_validated': transport.init_event is not None,
+            'tool_roundtrip': any(not c['is_error'] and c['result'] for c in result['tool_calls']),
+            'text_returned': bool(result['text']),
+            'api_equivalent_cost_usd': result.get('api_equivalent_cost_usd'),
+        }
+        report['text'] = result['text']
+        report['passed'] = all(v for k, v in report['checks'].items()
+                               if k != 'api_equivalent_cost_usd')
+    except Exception as exc:
+        report['passed'] = False
+        report['error'] = {'type': type(exc).__name__, 'message': str(exc)}
+    finally:
+        transport.close()
+        try:
+            transport.export_artifacts(out)
+        except Exception as exc:
+            report.setdefault('export_warning', f'{type(exc).__name__}: {exc}')
+    (out / 'harness-check.json').write_text(json.dumps(report, indent=2) + '\n')
+    return report
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('command', choices=('freeze', 'dry-run', 'gate', 'baseline', 'run-stage'))
+    parser.add_argument('command', choices=('freeze', 'freeze-a9', 'dry-run', 'gate', 'baseline',
+                                            'run-stage', 'claude-harness-check'))
     parser.add_argument('--model')
     parser.add_argument('--stage', choices=('neutral', 'authority_extension', 'pilot'))
     parser.add_argument('--root', default='/usr/local/stuff/jtest/results/subscription-round-2026-07-23')
@@ -1052,6 +1287,18 @@ def main():
         root.mkdir(parents=True, exist_ok=True)
         path = root / 'schedule.json'; path.write_text(json.dumps(schedule, indent=2) + '\n')
         print(json.dumps({'path': str(path), 'sha256': schedule['schedule_sha256']})); return
+    if args.command == 'freeze-a9':
+        a9 = build_a9_schedule()
+        root.mkdir(parents=True, exist_ok=True)
+        path = root / 'schedule-a9.json'; path.write_text(json.dumps(a9, indent=2) + '\n')
+        print(json.dumps({'path': str(path), 'sha256': a9['schedule_sha256'],
+                          'extends': a9['extends_schedule_sha256']})); return
+    if args.command == 'claude-harness-check':
+        report = claude_harness_check(args.model or CLAUDE_HARNESS_CHECK_MODEL, root)
+        print(json.dumps({'passed': report['passed'], 'checks': report.get('checks'),
+                          'error': report.get('error')}))
+        if not report['passed']: raise SystemExit(2)
+        return
     if args.command == 'dry-run':
         model = 'gpt-5.6-sol'; config = schedule['model_classes'][model]
         session = next(s for s in config['neutral_sessions'] if s['cell'] == 'C1' and s['arm'] == 'genuine')
@@ -1059,7 +1306,7 @@ def main():
                               results_root=root / 'mock')
         print(out); return
     if not args.model: parser.error('--model is required')
-    config = schedule['model_classes'][args.model]
+    config = _resolve_config(args.model)
     if args.command == 'gate':
         artifact = run_gate(args.model, config, root)
         print(json.dumps({'passed': artifact['score']['passed'], 'correct': artifact['score']['correct'],

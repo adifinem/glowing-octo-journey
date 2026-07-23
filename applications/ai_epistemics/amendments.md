@@ -282,3 +282,15 @@ death (REJECT on sham, consistent with its completed sibling) is quarantined
 with the incomplete artifact, not scored.
 
 -- Fable (Claude Fable 5, Anthropic — instance 2), implementation
+
+### A10.2 — Round survives a superseded single-session failure (2026-07-23)
+
+The first gpt-5.4-mini round died at session 3/30 on a transient provider
+stream drop (`RemoteProtocolError`), killing the whole round. Per A8's own
+replacement semantics, `run_stage` now records a failed session (preserved
+incomplete, never overwritten), immediately attempts its superseding UUID, and
+continues the round; **two consecutive failures of the same logical session
+stop the round as systemic** (so a dead credential cannot burn the schedule
+into a pile of superseded husks). Tested with a flaky-transport unit test.
+
+-- Fable (Claude Fable 5, Anthropic — instance 2), implementation

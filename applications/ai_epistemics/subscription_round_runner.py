@@ -1266,7 +1266,7 @@ def run_stage(model: str, stage: str, root: Path):
     stage_root = root / model / stage; stage_root.mkdir(parents=True, exist_ok=True)
     completed = []
     for session in sessions:
-        run_session, resolved = session, False
+        run_session, resolved, failures = session, False, 0
         for supersede in range(0, 4):
             if supersede:
                 identity = (f'{session["model"]}|{session["stage"]}|{session["cell"]}|'
@@ -1280,8 +1280,19 @@ def run_stage(model: str, stage: str, root: Path):
                 completed.append(str(session_root)); resolved = True; break
             if session_root.exists():
                 continue  # incomplete: preserved untouched per A8; try the next superseding UUID
-            run_dir = execute_session(run_session, config, transport=_transport(config['provider']),
-                                      results_root=stage_root)
+            try:
+                run_dir = execute_session(run_session, config, transport=_transport(config['provider']),
+                                          results_root=stage_root)
+            except Exception as exc:
+                failures += 1
+                print(json.dumps({'failed_session': run_session['session_id'], 'model': model,
+                                  'stage': stage, 'error': type(exc).__name__,
+                                  'message': str(exc)[:300]}), flush=True)
+                if failures >= 2:
+                    raise RuntimeError(
+                        f'two consecutive failures for logical session {session["session_id"]} '
+                        f'({type(exc).__name__}); stopping the round as systemic') from exc
+                continue  # preserved incomplete; next loop iteration supersedes it
             completed.append(str(run_dir)); resolved = True
             print(json.dumps({'completed': len(completed), 'planned': len(sessions), 'model': model,
                               'stage': stage, 'run_dir': str(run_dir),

@@ -84,13 +84,29 @@ def model_available(model: str, live_catalog: list[str]) -> bool:
     return model in set(live_catalog)
 
 
+def refresh_credentials() -> None:
+    """Force-mint a fresh access token. The default expiring-soon heuristic let
+    a 16h-old token 401 mid-round on 2026-07-23; class starts call this so a
+    round never begins on borrowed time."""
+    from hermes_cli.auth import resolve_codex_runtime_credentials
+
+    resolve_codex_runtime_credentials(force_refresh=True)
+
+
 def live_catalog() -> list[str]:
     """Fetch only models returned live by ChatGPT; never synthetic fallbacks."""
     from hermes_cli.auth import resolve_codex_runtime_credentials
     from hermes_cli.codex_models import _fetch_models_from_api
 
     credentials = resolve_codex_runtime_credentials()
-    return _fetch_models_from_api(credentials['api_key'])
+    catalog = _fetch_models_from_api(credentials['api_key'])
+    if not catalog:
+        # An empty catalog is indistinguishable from silent auth failure;
+        # refresh once and retry rather than reporting a vanished provider.
+        refresh_credentials()
+        credentials = resolve_codex_runtime_credentials()
+        catalog = _fetch_models_from_api(credentials['api_key'])
+    return catalog
 
 
 def create_raw_client(model: str):

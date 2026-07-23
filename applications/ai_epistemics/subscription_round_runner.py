@@ -53,6 +53,10 @@ A12_PILOT_EFFORT = 'high'
 # A13: the never-run A8 gpt-5.5 class (xhigh) is superseded at effort 'high'
 # (j's budget rule). Replicates 6-10 keep UUIDs distinct from A8's sessions.
 A13_GPT55_EFFORT = 'high'
+# A14: tier-matched pilots with real/sham twins, superseding never-run A12.
+# Flagship at provider-top (fable max ↔ 5.6-sol max), mid at high
+# (sonnet ↔ 5.5). Replicate 3 keeps UUIDs distinct from A8 (r1) and A12 (r2).
+A14_PILOT_EFFORT = {'claude-fable-5': 'max', 'claude-sonnet-5': 'high'}
 
 
 def canonical_sha(value) -> str:
@@ -383,9 +387,68 @@ def build_a13_schedule() -> dict:
     return a13
 
 
+def build_a14_schedule() -> dict:
+    """A14: tier-matched pilots with real/sham twins, superseding the never-run
+    A12 (and A8) pilot entries. fable at provider-top effort mirrors the
+    completed gpt-5.6-sol max class (best-vs-best); sonnet at high mirrors
+    gpt-5.5. Each subject runs one C1-genuine and one C1-sham session at its
+    class effort, satisfying the real/sham-matched rule."""
+    base = build_schedule()
+    if base['schedule_sha256'] != A9_EXTENDS_SCHEDULE_SHA256:
+        raise RuntimeError(
+            f'A8 base schedule drifted to {base["schedule_sha256"]}; A14 extension refuses to freeze')
+    stimuli = json.loads(STIMULI_PATH.read_text())
+    orders = _probe_orders(stimuli)
+    classes = {}
+    for model in CLAUDE_MAX_MODELS:
+        classes[model] = {
+            'provider': 'claude-code-max',
+            'harness_class': 'claude-code-max-oauth-stream-json',
+            'system_class': 'registered-default',
+            'max_tokens': 64000,
+            'output_ceiling_policy': 'provider maximum reported by Claude Code modelUsage',
+            'session_cost_guard_usd': 0.0,
+            'effort': A14_PILOT_EFFORT[model],
+            'effort_framing': ('provider-top effort, tier-matched to gpt-5.6-sol max'
+                               if A14_PILOT_EFFORT[model] == 'max'
+                               else 'typical-use effort, tier-matched to gpt-5.5 high'),
+            'neutral_sessions': [],
+            'authority_extension_sessions': [],
+            'pilot_sessions': [
+                _session(model, cell='C1', arm='genuine', authority='neutral',
+                         replicate=3, order=orders[2], stage='pilot'),
+                _session(model, cell='C1', arm='sham', authority='neutral',
+                         replicate=3, order=orders[3], stage='pilot'),
+            ],
+        }
+    a14 = {
+        'schema': 2,
+        'amendment': 'A14',
+        'registered_commit': REGISTERED_COMMIT,
+        'extends_schedule_sha256': A9_EXTENDS_SCHEDULE_SHA256,
+        'supersedes_unrun_pilot_amendments': ['A8-pilots', 'A12'],
+        'schedule_seed': SCHEDULE_SEED,
+        'namespace_uuid': str(NAMESPACE),
+        'probe_orders': orders,
+        'model_classes': classes,
+        'execution_order': ['claude-fable-5:gate,baseline,pilot', 'claude-sonnet-5:gate,baseline,pilot'],
+        'transport_policy': base['transport_policy'],
+        'fable_window_protocol': (
+            'run at the top of a fresh 5h Max window with orchestration quiesced; gate+baseline '
+            'as canary; window death mid-session is preserved-incomplete and superseded next window'),
+    }
+    a14['schedule_sha256'] = canonical_sha(a14)
+    return a14
+
+
 def _resolve_config(model: str) -> dict:
-    # A12/A13 supersede A8's never-run pilot and gpt-5.5 entries, so those
-    # extensions resolve before the base schedule for their models.
+    # A13/A14 supersede A8's never-run gpt-5.5 and pilot entries (A14 also
+    # supersedes A12), so extensions resolve before the base schedule.
+    a14 = build_a14_schedule()
+    if model in a14['model_classes']:
+        config = dict(a14['model_classes'][model])
+        config['schedule_sha256_override'] = a14['schedule_sha256']
+        return config
     a13 = build_a13_schedule()
     if model in a13['model_classes']:
         config = dict(a13['model_classes'][model])
@@ -1470,7 +1533,7 @@ def claude_harness_check(model: str, root: Path) -> dict:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('command', choices=('freeze', 'freeze-a9', 'freeze-a10', 'freeze-a12', 'freeze-a13',
+    parser.add_argument('command', choices=('freeze', 'freeze-a9', 'freeze-a10', 'freeze-a12', 'freeze-a13', 'freeze-a14',
                                             'dry-run', 'gate', 'baseline', 'run-stage',
                                             'claude-harness-check'))
     parser.add_argument('--model')
@@ -1482,9 +1545,10 @@ def main():
         root.mkdir(parents=True, exist_ok=True)
         path = root / 'schedule.json'; path.write_text(json.dumps(schedule, indent=2) + '\n')
         print(json.dumps({'path': str(path), 'sha256': schedule['schedule_sha256']})); return
-    if args.command in ('freeze-a9', 'freeze-a10', 'freeze-a12', 'freeze-a13'):
+    if args.command in ('freeze-a9', 'freeze-a10', 'freeze-a12', 'freeze-a13', 'freeze-a14'):
         ext = {'freeze-a9': build_a9_schedule, 'freeze-a10': build_a10_schedule,
-               'freeze-a12': build_a12_schedule, 'freeze-a13': build_a13_schedule}[args.command]()
+               'freeze-a12': build_a12_schedule, 'freeze-a13': build_a13_schedule,
+               'freeze-a14': build_a14_schedule}[args.command]()
         root.mkdir(parents=True, exist_ok=True)
         path = root / f'schedule-{ext["amendment"].lower()}.json'
         path.write_text(json.dumps(ext, indent=2) + '\n')

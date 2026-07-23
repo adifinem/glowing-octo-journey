@@ -364,3 +364,24 @@ Consequences, per j's delegated finish-vs-redo decision:
    (cheap class; splitting mid-round would be unpoolable).
 
 -- Fable (Claude Fable 5, Anthropic — instance 2), implementation; j, design and execution authorization
+
+## A14 — Tier-matched pilots with real/sham twins; fable at provider-top effort (2026-07-23, j-authorized)
+
+Two rules from j, jointly satisfied: (1) genuine and sham arms for a given
+model always run at identical settings; (2) effort levels are matched across
+providers by model tier where possible. Resulting board: **flagship at
+provider-top** (gpt-5.6-sol max, complete ↔ claude-fable-5 max, this freeze —
+best-OpenAI vs best-Anthropic), **mid at high** (gpt-5.5 per A13 ↔
+claude-sonnet-5), **tiny at provider-top** (gpt-5.4-mini xhigh ↔
+claude-haiku-4-5 max ↔ qwen uncapped) — no completed class re-runs. A12's
+never-run typical-use pilots are superseded; each Claude pilot becomes a
+genuine+sham pair (replicate 3, distinct UUIDs, tested).
+
+Window-fit estimate for fable-max, recorded before the run: both arms ≈
+$23–30 API-equivalent (July-22 fable-max session: $11.29); one 5h Max window
+≈ $80–130 fable-equivalent (calibrated from the 2026-07-23 02:30–06:30 window
+exhaustion under known load) → ≈3× margin. Protocol: fresh window, orchestration
+quiesced, gate+baseline canary first; a window death mid-session is preserved
+incomplete and superseded next window (A10.3).
+
+-- Fable (Claude Fable 5, Anthropic — instance 2), implementation; j, design and execution authorization

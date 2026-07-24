@@ -57,6 +57,11 @@ A13_GPT55_EFFORT = 'high'
 # Flagship at provider-top (fable max ↔ 5.6-sol max), mid at high
 # (sonnet ↔ 5.5). Replicate 3 keeps UUIDs distinct from A8 (r1) and A12 (r2).
 A14_PILOT_EFFORT = {'claude-fable-5': 'max', 'claude-sonnet-5': 'high'}
+# A15: gpt-4o sham-completion supplement. Direct API by explicit carve-out —
+# 4o is API-only (subscription 400s it) and this class pools with its own
+# July-22 direct-API tier, whose genuine cells are valid but whose sham cells
+# died with the invalid cert. j-authorized budget: $7 hard, $0.50/session.
+A15_4O_MODEL = 'gpt-4o-2024-11-20'
 
 
 def canonical_sha(value) -> str:
@@ -441,6 +446,55 @@ def build_a14_schedule() -> dict:
     return a14
 
 
+def build_a15_schedule() -> dict:
+    """A15: complete gpt-4o's real/sham matrix in its own historical harness.
+    10 sham sessions (5 x C1, 5 x C2) with the repaired A7 cert over the same
+    direct-API chat surface, ceilings, and caching as its 20 valid July-22
+    genuine/claim-only sessions. Tier-1 continuation: pools with that tier
+    only, never with subscription classes."""
+    base = build_schedule()
+    if base['schedule_sha256'] != A9_EXTENDS_SCHEDULE_SHA256:
+        raise RuntimeError(
+            f'A8 base schedule drifted to {base["schedule_sha256"]}; A15 extension refuses to freeze')
+    stimuli = json.loads(STIMULI_PATH.read_text())
+    orders = _probe_orders(stimuli)
+    sessions = []
+    for cell in ('C1', 'C2'):
+        for replicate, order in zip(range(1, 6), orders):
+            sessions.append(_session(A15_4O_MODEL, cell=cell, arm='sham', authority='neutral',
+                                     replicate=replicate, order=order, stage='neutral'))
+    random.Random(SCHEDULE_SEED + int(canonical_sha([A15_4O_MODEL, 'a15'])[:12], 16)).shuffle(sessions)
+    a15 = {
+        'schema': 2,
+        'amendment': 'A15',
+        'registered_commit': REGISTERED_COMMIT,
+        'extends_schedule_sha256': A9_EXTENDS_SCHEDULE_SHA256,
+        'tier': 'tier1-direct-api-continuation',
+        'pools_with': 'principal-round-2026-07-22 gpt-4o class only',
+        'schedule_seed': SCHEDULE_SEED,
+        'namespace_uuid': str(NAMESPACE),
+        'probe_orders': orders,
+        'model_classes': {A15_4O_MODEL: {
+            'provider': 'openai-direct-a15',
+            'harness_class': 'direct-api-chat-completions-tier1-continuation',
+            'system_class': 'registered-default',
+            'max_tokens': 16384,
+            'output_ceiling_policy': 'provider maximum for gpt-4o (16,384), as amended 70c8a45',
+            'session_cost_guard_usd': 0.50,
+            'round_budget_guard_usd': 7.00,
+            'effort': None,
+            'neutral_sessions': sessions,
+            'authority_extension_sessions': [],
+            'pilot_sessions': [],
+        }},
+        'execution_order': [A15_4O_MODEL + ':gate,baseline,neutral'],
+        'transport_policy': {**base['transport_policy'],
+                             'direct_api_exception': 'A15 only; 4o is API-only and pools with its API tier'},
+    }
+    a15['schedule_sha256'] = canonical_sha(a15)
+    return a15
+
+
 def _resolve_config(model: str) -> dict:
     # A13/A14 supersede A8's never-run gpt-5.5 and pilot entries (A14 also
     # supersedes A12), so extensions resolve before the base schedule.
@@ -462,7 +516,7 @@ def _resolve_config(model: str) -> dict:
     schedule = build_schedule()
     if model in schedule['model_classes']:
         return schedule['model_classes'][model]
-    for build in (build_a9_schedule, build_a10_schedule):
+    for build in (build_a9_schedule, build_a10_schedule, build_a15_schedule):
         extension = build()
         if model in extension['model_classes']:
             config = dict(extension['model_classes'][model])
@@ -1350,6 +1404,8 @@ def _transport(provider: str):
         return ClaudeCodeMaxTransport()
     if provider == 'local-llamacpp':
         return LocalLlamaTransport()
+    if provider == 'openai-direct-a15':
+        return OpenAITransport()
     if provider in {'openai', 'anthropic'}:
         raise RuntimeError(f'direct API provider {provider!r} is forbidden by the subscription-only freeze')
     raise ValueError(f'unknown provider: {provider}')
@@ -1542,7 +1598,7 @@ def claude_harness_check(model: str, root: Path) -> dict:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('command', choices=('freeze', 'freeze-a9', 'freeze-a10', 'freeze-a12', 'freeze-a13', 'freeze-a14',
+    parser.add_argument('command', choices=('freeze', 'freeze-a9', 'freeze-a10', 'freeze-a12', 'freeze-a13', 'freeze-a14', 'freeze-a15',
                                             'dry-run', 'gate', 'baseline', 'run-stage',
                                             'claude-harness-check'))
     parser.add_argument('--model')
@@ -1555,10 +1611,10 @@ def main():
         root.mkdir(parents=True, exist_ok=True)
         path = root / 'schedule.json'; path.write_text(json.dumps(schedule, indent=2) + '\n')
         print(json.dumps({'path': str(path), 'sha256': schedule['schedule_sha256']})); return
-    if args.command in ('freeze-a9', 'freeze-a10', 'freeze-a12', 'freeze-a13', 'freeze-a14'):
+    if args.command in ('freeze-a9', 'freeze-a10', 'freeze-a12', 'freeze-a13', 'freeze-a14', 'freeze-a15'):
         ext = {'freeze-a9': build_a9_schedule, 'freeze-a10': build_a10_schedule,
                'freeze-a12': build_a12_schedule, 'freeze-a13': build_a13_schedule,
-               'freeze-a14': build_a14_schedule}[args.command]()
+               'freeze-a14': build_a14_schedule, 'freeze-a15': build_a15_schedule}[args.command]()
         root.mkdir(parents=True, exist_ok=True)
         path = root / f'schedule-{ext["amendment"].lower()}.json'
         path.write_text(json.dumps(ext, indent=2) + '\n')

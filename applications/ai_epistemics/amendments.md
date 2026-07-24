@@ -401,3 +401,20 @@ relaxed to "with measured headroom ≥ the arm's expected draw" — the first ar
 launches mid-window at 13% used on j's use-it-or-lose-it instruction.
 
 -- Fable (Claude Fable 5, Anthropic — instance 2), implementation; j, design and execution authorization
+
+## A15 — gpt-4o sham-completion supplement, direct-API carve-out (2026-07-23, j-authorized)
+
+4o is API-only (the ChatGPT backend 400s it: "not supported when using Codex
+with a ChatGPT account" — Sol's final pre-crash smoke) and its July-22 tier
+holds 20 valid genuine/claim-only sessions whose sham twins died with the
+invalid cert. This freeze completes its real/sham matrix in its own harness:
+10 sham sessions (5×C1, 5×C2, repaired A7 cert) over the identical direct-API
+chat surface, 16,384 ceiling, and caching (measured 76% hit rate, $0.068/
+session in the July-22 round). Pools with the July-22 tier ONLY. Due-diligence
+math recorded: expected cost $0.70–1.00 plus retries against a j-authorized $7
+hard budget and $0.50/session guard; the money the earlier attempts "kept
+eating" traces to concurrent 5.5-class reruns, not 4o. The blanket
+subscription-only rule stays intact; provider 'openai-direct-a15' is the sole
+carve-out.
+
+-- Fable (Claude Fable 5, Anthropic — instance 2), implementation; j, design and execution authorization
